@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Registration</title>
+</head>
+<body>
+<h1>Customer Registration</h1>
+
+<div th:if="${error}" style="color: red;">
+    <p th:text="${error}"></p>
+</div>
+
+<form method="post" th:action="@{/register}">
+    <table>
+        <tr>
+            <td>Full Name:</td>
+            <td><input type="text" name="customerName" required /></td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td><input type="email" name="customerEmail" required /></td>
+        </tr>
+        <tr>
+            <td>Username:</td>
+            <td><input type="text" name="customerUsername" required /></td>
+        </tr>
+        <tr>
+            <td>Password:</td>
+            <td><input type="password" name="customerPassword" required /></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Register" />
+            </td>
+        </tr>
+    </table>
+</form>
+
+<p><a th:href="@{/login}">Already have an account? Login here</a></p>
+</body>
+</html>
