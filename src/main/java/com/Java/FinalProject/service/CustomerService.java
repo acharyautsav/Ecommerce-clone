@@ -40,8 +40,13 @@ public class CustomerService {
         return customerRepository.save(customer);
     }
 
-    public Customer loginCustomer(String username, String password) {
-        Optional<Customer> customerOpt = customerRepository.findByCustomerUsername(username);
+    public Customer loginCustomer(String usernameOrEmail, String password) {
+        Optional<Customer> customerOpt;
+        if (usernameOrEmail.contains("@")) {
+            customerOpt = customerRepository.findByCustomerEmail(usernameOrEmail);
+        } else {
+            customerOpt = customerRepository.findByCustomerUsername(usernameOrEmail);
+        }
 
         if (customerOpt.isPresent()) {
             Customer customer = customerOpt.get();
@@ -52,7 +57,7 @@ public class CustomerService {
             }
         }
 
-        throw new RuntimeException("Invalid username or password!");
+        throw new RuntimeException("Invalid username/email or password!");
     }
 
     public Optional<Customer> findById(Long customerId) {

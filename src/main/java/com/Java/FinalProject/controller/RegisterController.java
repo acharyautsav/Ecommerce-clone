@@ -3,10 +3,10 @@ package com.Java.FinalProject.controller;
 import com.Java.FinalProject.entity.Customer;
 import com.Java.FinalProject.service.CustomerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 
 @RequiredArgsConstructor
 @Controller
@@ -25,7 +25,8 @@ public class RegisterController {
                                   @RequestParam String customerEmail,
                                   @RequestParam String customerUsername,
                                   @RequestParam String customerPassword,
-                                  Model model) {
+                                  Model model,
+                                  HttpSession session) {
         try {
             Customer customer = new Customer();
             customer.setCustomerName(customerName);
@@ -34,8 +35,8 @@ public class RegisterController {
             customer.setCustomerPassword(customerPassword);
 
             customerService.registerCustomer(customer);
-            model.addAttribute("success", "Registration successful! Please login.");
-            return "login";
+            // Redirect to dashboard with success message, do not auto-login
+            return "redirect:/?success=1";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             return "register";

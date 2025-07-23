@@ -418,27 +418,31 @@
 
     <!-- Categories -->
     <section class="categories">
-        <div class="category-card" onclick="filterProducts('electronics')">
+        <div class="category-card" onclick="filterProducts('all')">
+            <div class="category-icon">🌐</div>
+            <h3>Show All</h3>
+        </div>
+        <div class="category-card" onclick="filterProducts('Electronics')">
             <div class="category-icon">📱</div>
             <h3>Electronics</h3>
         </div>
-        <div class="category-card" onclick="filterProducts('fashion')">
+        <div class="category-card" onclick="filterProducts('Fashion')">
             <div class="category-icon">👗</div>
             <h3>Fashion</h3>
         </div>
-        <div class="category-card" onclick="filterProducts('home')">
+        <div class="category-card" onclick="filterProducts('Home & Garden')">
             <div class="category-icon">🏠</div>
             <h3>Home & Garden</h3>
         </div>
-        <div class="category-card" onclick="filterProducts('sports')">
+        <div class="category-card" onclick="filterProducts('Sports')">
             <div class="category-icon">⚽</div>
             <h3>Sports</h3>
         </div>
-        <div class="category-card" onclick="filterProducts('books')">
+        <div class="category-card" onclick="filterProducts('Books')">
             <div class="category-icon">📚</div>
             <h3>Books</h3>
         </div>
-        <div class="category-card" onclick="filterProducts('beauty')">
+        <div class="category-card" onclick="filterProducts('Beauty')">
             <div class="category-icon">💄</div>
             <h3>Beauty</h3>
         </div>
@@ -448,18 +452,14 @@
     <section class="products-section">
         <h2 class="section-title">Featured Products</h2>
         <div class="products-grid" id="productsGrid">
-            <!-- Products will be loaded from the server -->
             <div th:each="product : ${products}">
-                <div class="product-card" th:onclick="'handleProductClick(' + ${product.id} + ')'">
-                    <div class="product-image" th:text="${product.icon}">📱</div>
+                <div class="product-card" th:attr="data-category=${product.category}" th:onclick="|handleProductClick(${product.productId})|">
+                    <div class="product-image">📦</div>
                     <div class="product-info">
-                        <h3 class="product-title" th:text="${product.title}">Product Title</h3>
-                        <p class="product-price" th:text="'$' + ${product.price}">$999</p>
-                        <div class="product-rating">
-                            <span class="stars" th:text="${#strings.repeat('★', product.rating) + #strings.repeat('☆', 5 - product.rating)}">★★★★☆</span>
-                            <span th:text="'(' + ${product.rating} + ')'">(4.5)</span>
-                        </div>
-                        <p class="seller-info" th:text="'Sold by: ' + ${product.sellerName}">Sold by: Seller</p>
+                        <h3 class="product-title" th:text="${product.productName}">Product Name</h3>
+                        <p class="product-price" th:text="'$' + ${product.price}">$0.00</p>
+                        <p class="seller-info" th:text="'Category: ' + ${product.category}">Category: </p>
+                        <p class="seller-info" th:text="'Sold by: ' + ${product.sellerId}">Sold by: </p>
                     </div>
                 </div>
             </div>
@@ -479,8 +479,8 @@
         <h2>Login</h2>
         <form id="loginForm" th:action="@{/login}" method="post">
             <div class="form-group">
-                <label for="loginEmail">Email:</label>
-                <input type="email" id="loginEmail" name="email" required>
+                <label for="loginEmail">Email or Username:</label>
+                <input type="text" id="loginEmail" name="username" required>
             </div>
             <div class="form-group">
                 <label for="loginPassword">Password:</label>
@@ -502,19 +502,19 @@
         <form id="signupForm" th:action="@{/register}" method="post">
             <div class="form-group">
                 <label for="signupName">Full Name:</label>
-                <input type="text" id="signupName" name="name" required>
+                <input type="text" id="signupName" name="customerName" required>
             </div>
             <div class="form-group">
                 <label for="signupEmail">Email:</label>
-                <input type="email" id="signupEmail" name="email" required>
+                <input type="email" id="signupEmail" name="customerEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="signupUsername">Username:</label>
+                <input type="text" id="signupUsername" name="customerUsername" required>
             </div>
             <div class="form-group">
                 <label for="signupPassword">Password:</label>
-                <input type="password" id="signupPassword" name="password" required>
-            </div>
-            <div class="form-group">
-                <label for="signupConfirmPassword">Confirm Password:</label>
-                <input type="password" id="signupConfirmPassword" name="confirmPassword" required>
+                <input type="password" id="signupPassword" name="customerPassword" required>
             </div>
             <button type="submit" class="form-btn">Sign Up</button>
         </form>
@@ -577,15 +577,29 @@
 </div>
 
 <script>
+    // Set isLoggedIn based on whether customerName is present (from Thymeleaf)
+    var isLoggedIn = /*[[${customerName != null}]]*/ false;
+
     // Handle product click
     function handleProductClick(productId) {
+        if (!isLoggedIn) {
+            openModal('loginModal');
+            return;
+        }
         // Redirect to product details page
         window.location.href = '/product/' + productId;
     }
 
-    // Filter products by category
+    // Filter products by category (client-side)
     function filterProducts(category) {
-        window.location.href = '/products?category=' + category;
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            if (category === 'all' || card.getAttribute('data-category') === category) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
     }
 
     // Modal functions
@@ -666,6 +680,15 @@
         } else if (sellerError) {
             alert('Error: ' + sellerError);
             openModal('sellerSignupModal');
+        }
+
+        // Registration success popup
+        if (window.location.search.includes('success=1')) {
+            alert('Registration successful!');
+        }
+        // Login error popup
+        if (window.location.search.includes('error=1')) {
+            alert('Login failed! Invalid username/email or password.');
         }
     });
 

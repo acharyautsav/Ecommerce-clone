@@ -355,7 +355,7 @@
 <div class="header">
     <div class="logo">ShopMart</div>
     <div class="header-right">
-        <div class="seller-name">Welcome, <span th:text="${seller.sellerName}">Seller Name</span></div>
+        <div class="seller-name">Welcome, <span th:text="${seller != null && seller.sellerName != null ? seller.sellerName : ''}">Seller Name</span></div>
         <a href="/seller/logout" class="logout-btn">Logout</a>
     </div>
 </div>
@@ -377,12 +377,22 @@
     <!-- Products Grid -->
     <div class="products-grid" th:if="${products != null and !products.empty}">
         <div class="product-card" th:each="product : ${products}">
-            <div class="product-image" th:text="${#strings.substring(product.productName, 0, 1)}">P</div>
+            <div class="product-image" th:text="${product.productName != null ? #strings.substring(product.productName, 0, 1) : 'P'}">P</div>
             <div class="product-info">
-                <h3 th:text="${product.productName}">Product Name</h3>
-                <span class="product-category" th:text="${product.category}">Category</span>
-                <div class="product-price">$<span th:text="${product.price}">0.00</span></div>
-                <p class="product-description" th:text="${product.description}">Product description</p>
+                <h3 th:text="${product.productName != null ? product.productName : ''}">Product Name</h3>
+                <span class="product-category" th:text="${product.category != null ? product.category : ''}">Category</span>
+                <div class="product-price">
+                    $<span th:text="${product.price != null ? product.price : '0.00'}">0.00</span>
+                    <button class="btn btn-primary btn-sm" style="margin-left:10px;"
+                        th:attr="data-product-id=${product.productId},
+                                 data-product-name=${product.productName != null ? #strings.escapeJavaScript(product.productName) : ''},
+                                 data-product-category=${product.category != null ? #strings.escapeJavaScript(product.category) : ''},
+                                 data-product-price=${product.price != null ? product.price : 0},
+                                 data-product-description=${product.description != null ? #strings.escapeJavaScript(product.description) : ''}"
+                        onclick="openEditProductModalFromButton(this)">Edit</button>
+                    <button class="btn btn-secondary btn-sm" style="margin-left:5px;" th:onclick="|deleteProduct([[${product.productId}]])|">Delete</button>
+                </div>
+                <p class="product-description" th:text="${product.description != null ? product.description : ''}">Product description</p>
             </div>
         </div>
     </div>
@@ -439,6 +449,45 @@
     </div>
 </div>
 
+<!-- Edit Product Modal -->
+<div id="editProductModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditProductModal()">&times;</span>
+        <h2>Edit Product</h2>
+        <form id="editProductForm">
+            <input type="hidden" id="editProductId" name="productId">
+            <div class="form-group">
+                <label for="editProductName">Product Name *</label>
+                <input type="text" id="editProductName" name="productName" required>
+            </div>
+            <div class="form-group">
+                <label for="editCategory">Category *</label>
+                <select id="editCategory" name="category" required>
+                    <option value="">Select Category</option>
+                    <option value="Electronics">📱 Electronics</option>
+                    <option value="Fashion">👗 Fashion</option>
+                    <option value="Home & Garden">🏠 Home & Garden</option>
+                    <option value="Sports">⚽ Sports</option>
+                    <option value="Books">📚 Books</option>
+                    <option value="Beauty">💄 Beauty</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editPrice">Price ($) *</label>
+                <input type="number" id="editPrice" name="price" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="editDescription">Description</label>
+                <textarea id="editDescription" name="description" placeholder="Describe your product..."></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" onclick="closeEditProductModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Update Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     // Modal Functions
     function openAddProductModal() {
@@ -450,11 +499,39 @@
         document.getElementById('addProductForm').reset();
     }
 
+    function openEditProductModal(productId, productName, category, price, description) {
+        document.getElementById('editProductId').value = productId;
+        document.getElementById('editProductName').value = productName;
+        document.getElementById('editCategory').value = category;
+        document.getElementById('editPrice').value = price;
+        document.getElementById('editDescription').value = description;
+        document.getElementById('editProductModal').style.display = 'block';
+    }
+
+    function closeEditProductModal() {
+        document.getElementById('editProductModal').style.display = 'none';
+        document.getElementById('editProductForm').reset();
+    }
+
+    function openEditProductModalFromButton(btn) {
+        openEditProductModal(
+            btn.getAttribute('data-product-id'),
+            btn.getAttribute('data-product-name'),
+            btn.getAttribute('data-product-category'),
+            btn.getAttribute('data-product-price'),
+            btn.getAttribute('data-product-description')
+        );
+    }
+
     // Close modal when clicking outside
     window.onclick = function(event) {
-        const modal = document.getElementById('addProductModal');
-        if (event.target === modal) {
+        const addModal = document.getElementById('addProductModal');
+        const editModal = document.getElementById('editProductModal');
+        if (event.target === addModal) {
             closeAddProductModal();
+        }
+        if (event.target === editModal) {
+            closeEditProductModal();
         }
     }
 
@@ -482,6 +559,52 @@
                 alert('Failed to add product');
             });
     });
+
+    document.getElementById('editProductForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch('/seller/updateProduct', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Redirect to dashboard after successful edit
+                    window.location.href = data.redirectUrl || '/seller/dashboard';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update product');
+            });
+    });
+
+    function deleteProduct(productId) {
+        if (!confirm('Are you sure you want to delete this product?')) return;
+        const formData = new FormData();
+        formData.append('productId', productId);
+        fetch('/seller/deleteProduct', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = data.redirectUrl || '/seller/dashboard';
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete product');
+        });
+    }
 </script>
 </body>
 </html>

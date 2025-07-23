@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - ShopMart</title>
+    <style>
+        /* Copy all styles from dashboard.html */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; }
+        .header { background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; padding: 10px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 28px; font-weight: bold; text-decoration: none; color: white; }
+        .search-container { flex: 1; max-width: 500px; margin: 0 30px; position: relative; }
+        .search-bar { width: 100%; padding: 12px 20px; border: none; border-radius: 25px; font-size: 16px; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .search-btn { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #ff6b35; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a, .nav-links button { color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; transition: background-color 0.3s; background: none; border: none; cursor: pointer; font-size: 14px; }
+        .nav-links a:hover, .nav-links button:hover { background-color: rgba(255,255,255,0.2); }
+        .logout-btn { background: #dc3545; border: 1px solid #dc3545; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; background: #007bff; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .main-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 40px; text-align: center; color: white; margin-bottom: 30px; }
+        .hero-title { font-size: 36px; margin-bottom: 10px; }
+        .hero-subtitle { font-size: 18px; opacity: 0.9; }
+        .products-section { margin-top: 30px; }
+        .section-title { font-size: 24px; margin-bottom: 20px; color: #333; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .product-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.15); }
+        .product-image { width: 100%; height: 200px; background: linear-gradient(45deg, #f0f0f0, #e0e0e0); display: flex; align-items: center; justify-content: center; font-size: 60px; color: #999; }
+        .product-info { padding: 15px; }
+        .product-title { font-size: 16px; font-weight: 600; margin-bottom: 5px; color: #333; }
+        .product-price { font-size: 18px; font-weight: bold; color: #ff6b35; margin-bottom: 5px; }
+        .seller-info { font-size: 12px; color: #666; }
+        .footer { background: #333; color: white; text-align: center; padding: 20px 0; margin-top: 50px; }
+        @media (max-width: 768px) { .header-container { flex-direction: column; gap: 15px; } .search-container { margin: 0; max-width: 100%; } .nav-links { flex-wrap: wrap; justify-content: center; } .hero-title { font-size: 28px; } .products-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); } }
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="header-container">
+        <a href="/customer/dashboard" class="logo">ShopMart</a>
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search products, brands and more...">
+            <button class="search-btn">Search</button>
+        </div>
+        <div class="nav-links">
+            <div class="user-info">
+                <div class="user-avatar" th:text="${customerName.substring(0,1)}">U</div>
+                <span th:text="${customerName}">Customer</span>
+                <span style="font-size: 22px; cursor: pointer; margin: 0 10px;" onclick="window.location.href='/cart'">🛒</span>
+                <form th:action="@{/logout}" method="get" style="display:inline;">
+                    <button class="logout-btn" type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+<main class="main-container">
+    <section class="hero-section">
+        <h1 class="hero-title">Welcome, <span th:text="${customerName}">Customer</span>!</h1>
+        <p class="hero-subtitle">Here are the latest products for you.</p>
+    </section>
+    <section class="products-section">
+        <h2 class="section-title">Featured Products</h2>
+        <div class="products-grid">
+            <div th:each="product : ${products}">
+                <div class="product-card" th:attr="data-category=${product.category}" th:onclick="|handleProductClick(${product.productId})|">
+                    <div class="product-image">📦</div>
+                    <div class="product-info">
+                        <h3 class="product-title" th:text="${product.productName}">Product Name</h3>
+                        <p class="product-price" th:text="'$' + ${product.price}">$0.00</p>
+                        <div style="display: flex; gap: 8px; margin-bottom: 5px;">
+                            <button type="button" style="background: #28a745; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" th:onclick="|addToCart(event, ${product.productId})|">Add to Cart</button>
+                            <button style="background: #ff6b35; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;">Buy</button>
+                        </div>
+                        <p class="seller-info" th:text="'Category: ' + ${product.category}">Category: </p>
+                        <p class="seller-info" th:text="'Sold by: ' + ${product.sellerId}">Sold by: </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<footer class="footer">
+    <p>&copy; 2025 ShopMart. All rights reserved.</p>
+</footer>
+<!-- Cart Modal -->
+<div id="cartModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close" onclick="closeModal('cartModal')">&times;</span>
+        <h2>Your Cart</h2>
+        <div id="cartItems">
+            <!-- Placeholder: Replace with real cart items -->
+            <p>No items in cart.</p>
+        </div>
+    </div>
+</div>
+<!-- Toast Notification -->
+<div id="toast" style="visibility:hidden; min-width:200px; background:#333; color:#fff; text-align:center; border-radius:8px; padding:16px; position:fixed; z-index:9999; left:50%; bottom:30px; font-size:17px; transform:translateX(-50%); transition:visibility 0s, opacity 0.5s linear; opacity:0;">
+    Item added to cart!
+</div>
+<script>
+    function handleProductClick(productId) {
+        window.location.href = '/product/' + productId;
+    }
+    document.querySelector('.search-btn').addEventListener('click', function() {
+        const searchTerm = document.querySelector('.search-bar').value;
+        if (searchTerm) {
+            window.location.href = '/products?search=' + encodeURIComponent(searchTerm);
+        }
+    });
+    document.querySelector('.search-bar').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.querySelector('.search-btn').click();
+        }
+    });
+    // Modal functions (reuse from dashboard.html)
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function showToast(message) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.visibility = 'visible';
+        toast.style.opacity = '1';
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.visibility = 'hidden';
+        }, 2000);
+    }
+
+    function addToCart(event, productId) {
+        if (event) event.stopPropagation();
+        fetch('/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId: productId, quantity: 1 })
+        })
+        .then(response => {
+            if (response.ok) {
+                showToast('Item added to cart!');
+            } else {
+                showToast('Failed to add to cart.');
+            }
+        })
+        .catch(() => showToast('Failed to add to cart.'));
+    }
+</script>
+</body>
+</html> 

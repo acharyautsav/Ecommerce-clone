@@ -31,7 +31,7 @@ public class SellerRegisterController {
     @GetMapping("/login")
     public String showSellerLoginForm(Model model) {
         model.addAttribute("seller", new Seller());
-        return "redirect:/"; // Redirects back to dashboard where modal exists
+        return "seller/login";
     }
 
     @PostMapping("/login")
@@ -139,7 +139,7 @@ public class SellerRegisterController {
         }
     }
 
-    @PostMapping("/update-product")
+    @PostMapping("/updateProduct")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateProduct(
             @RequestParam Long productId,
@@ -170,6 +170,7 @@ public class SellerRegisterController {
             response.put("status", "success");
             response.put("message", "Product updated successfully");
             response.put("product", product);
+            response.put("redirectUrl", "/seller/dashboard");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("status", "error");
@@ -178,7 +179,7 @@ public class SellerRegisterController {
         }
     }
 
-    @PostMapping("/delete-product")
+    @PostMapping("/deleteProduct")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteProduct(
             @RequestParam Long productId,
@@ -197,6 +198,7 @@ public class SellerRegisterController {
             boolean deleted = productService.deleteProduct(productId, seller.getSellerId());
             response.put("status", deleted ? "success" : "error");
             response.put("message", deleted ? "Product deleted successfully" : "Failed to delete product");
+            response.put("redirectUrl", "/seller/dashboard");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("status", "error");

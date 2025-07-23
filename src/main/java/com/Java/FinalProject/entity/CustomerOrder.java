@@ -15,4 +15,10 @@ public class CustomerOrder {
     private Long orderId;
     private String orderStatus;
 
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<ItemsOrdered> items = new java.util.ArrayList<>();
 }

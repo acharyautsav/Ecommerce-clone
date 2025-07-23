@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable()) // Disable basic authentication
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
+                        .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                 );

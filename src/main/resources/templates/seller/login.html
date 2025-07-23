@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Login - ShopMart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: white;
+            padding: 2rem 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(44, 62, 80, 0.15);
+            max-width: 400px;
+            width: 100%;
+        }
+        .login-title {
+            text-align: center;
+            font-size: 2rem;
+            color: #e67e22;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #34495e;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #e67e22;
+        }
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .login-btn:hover {
+            background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
+        }
+        .error-message {
+            color: #e74c3c;
+            background: #fdecea;
+            border: 1px solid #f5c6cb;
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .register-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.2rem;
+            color: #2980b9;
+            text-decoration: none;
+        }
+        .register-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <div class="login-title">Seller Login</div>
+    <div id="errorMsg" class="error-message" style="display:none;"></div>
+    <form id="sellerLoginForm" autocomplete="off">
+        <div class="form-group">
+            <label for="sellerEmail">Email</label>
+            <input type="email" id="sellerEmail" name="sellerEmail" required />
+        </div>
+        <div class="form-group">
+            <label for="sellerPassword">Password</label>
+            <input type="password" id="sellerPassword" name="sellerPassword" required />
+        </div>
+        <button type="submit" class="login-btn">Login</button>
+    </form>
+    <a class="register-link" href="/seller/register">Don't have an account? Register here</a>
+</div>
+<script>
+    document.getElementById('sellerLoginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('sellerEmail').value;
+        const password = document.getElementById('sellerPassword').value;
+        const errorMsg = document.getElementById('errorMsg');
+        errorMsg.style.display = 'none';
+        fetch('/seller/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                sellerEmail: email,
+                sellerPassword: password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = data.redirectUrl || '/seller/dashboard';
+            } else {
+                errorMsg.textContent = data.message || 'Login failed. Please try again.';
+                errorMsg.style.display = 'block';
+            }
+        })
+        .catch(() => {
+            errorMsg.textContent = 'Server error. Please try again later.';
+            errorMsg.style.display = 'block';
+        });
+    });
+</script>
+</body>
+</html> 
