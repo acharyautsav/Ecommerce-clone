@@ -452,14 +452,14 @@
     <section class="products-section">
         <h2 class="section-title">Featured Products</h2>
         <div class="products-grid" id="productsGrid">
-            <div th:each="product : ${products}">
-                <div class="product-card" th:attr="data-category=${product.category}" th:onclick="|handleProductClick(${product.productId})|">
+            <div th:each="entry : ${products}">
+                <div class="product-card" th:attr="data-category=${entry.product.category}" th:onclick="|handleProductClick(${entry.product.productId})|">
                     <div class="product-image">📦</div>
                     <div class="product-info">
-                        <h3 class="product-title" th:text="${product.productName}">Product Name</h3>
-                        <p class="product-price" th:text="'$' + ${product.price}">$0.00</p>
-                        <p class="seller-info" th:text="'Category: ' + ${product.category}">Category: </p>
-                        <p class="seller-info" th:text="'Sold by: ' + ${product.sellerId}">Sold by: </p>
+                        <h3 class="product-title" th:text="${entry.product.productName}">Product Name</h3>
+                        <p class="product-price" th:text="'$' + ${entry.product.price}">$0.00</p>
+                        <p class="seller-info" th:text="'Category: ' + ${entry.product.category}">Category: </p>
+                        <p class="seller-info" th:text="'Sold by: ' + ${entry.sellerName}">Sold by: </p>
                     </div>
                 </div>
             </div>

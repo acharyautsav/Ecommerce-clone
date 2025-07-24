@@ -66,18 +66,18 @@
     <section class="products-section">
         <h2 class="section-title">Featured Products</h2>
         <div class="products-grid">
-            <div th:each="product : ${products}">
-                <div class="product-card" th:attr="data-category=${product.category}" th:onclick="|handleProductClick(${product.productId})|">
+            <div th:each="entry : ${products}">
+                <div class="product-card" th:attr="data-category=${entry.product.category}">
                     <div class="product-image">📦</div>
                     <div class="product-info">
-                        <h3 class="product-title" th:text="${product.productName}">Product Name</h3>
-                        <p class="product-price" th:text="'$' + ${product.price}">$0.00</p>
+                        <h3 class="product-title" th:text="${entry.product.productName}">Product Name</h3>
+                        <p class="product-price" th:text="'$' + ${entry.product.price}">$0.00</p>
                         <div style="display: flex; gap: 8px; margin-bottom: 5px;">
-                            <button type="button" style="background: #28a745; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" th:onclick="|addToCart(event, ${product.productId})|">Add to Cart</button>
+                            <button type="button" style="background: #28a745; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" th:onclick="|addToCart(event, ${entry.product.productId})|">Add to Cart</button>
                             <button style="background: #ff6b35; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;">Buy</button>
                         </div>
-                        <p class="seller-info" th:text="'Category: ' + ${product.category}">Category: </p>
-                        <p class="seller-info" th:text="'Sold by: ' + ${product.sellerId}">Sold by: </p>
+                        <p class="seller-info" th:text="'Category: ' + ${entry.product.category}">Category: </p>
+                        <p class="seller-info" th:text="'Sold by: ' + ${entry.sellerName}">Sold by: </p>
                     </div>
                 </div>
             </div>

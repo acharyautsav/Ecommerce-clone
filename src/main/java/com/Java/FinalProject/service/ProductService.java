@@ -1,13 +1,16 @@
 package com.Java.FinalProject.service;
 
 import com.Java.FinalProject.entity.Product;
+import com.Java.FinalProject.entity.Seller;
 import com.Java.FinalProject.repository.ProductRepository;
+import com.Java.FinalProject.repository.SellerRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -16,6 +19,9 @@ public class ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private SellerRepository sellerRepository;
 
     /**
      * Add a new product
@@ -65,6 +71,22 @@ public class ProductService {
      */
     public List<Product> getAllActiveProducts() {
         return productRepository.findAllActiveProducts();
+    }
+
+    /**
+     * Get all active products with seller names
+     */
+    public List<Map<String, Object>> getAllActiveProductsWithSellerName() {
+        List<Product> products = getAllActiveProducts();
+        List<Map<String, Object>> result = new java.util.ArrayList<>();
+        for (Product product : products) {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("product", product);
+            Seller seller = sellerRepository.findById(product.getSellerId()).orElse(null);
+            map.put("sellerName", seller != null ? seller.getSellerName() : "Unknown");
+            result.add(map);
+        }
+        return result;
     }
 
     /**

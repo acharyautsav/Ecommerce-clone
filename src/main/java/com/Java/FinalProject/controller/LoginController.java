@@ -27,7 +27,7 @@ public class LoginController {
             model.addAttribute("customerName", session.getAttribute("customerName"));
         }
         // Fetch all products and categories for the landing page
-        model.addAttribute("products", productService.getAllActiveProducts());
+        model.addAttribute("products", productService.getAllActiveProductsWithSellerName());
         model.addAttribute("categories", new String[]{"Electronics","Fashion","Home & Garden","Sports","Books","Beauty"});
         return "dashboard";
     }
@@ -45,7 +45,7 @@ public class LoginController {
             return "redirect:/";
         }
         model.addAttribute("customerName", customerName);
-        model.addAttribute("products", productService.getAllActiveProducts());
+        model.addAttribute("products", productService.getAllActiveProductsWithSellerName());
         return "customerDashboard";
     }
 
