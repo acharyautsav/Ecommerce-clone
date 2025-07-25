@@ -4,6 +4,9 @@ import com.Java.FinalProject.entity.Seller;
 import com.Java.FinalProject.repository.SellerRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class SellerService {
 
@@ -38,5 +41,19 @@ public class SellerService {
         // Find seller by email and password
         return sellerRepository.findBySellerEmailAndSellerPassword(sellerEmail, sellerPassword)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+    }
+
+    public List<Seller> getAllSellers() {
+        return sellerRepository.findAll();
+    }
+
+    public Optional<Seller> getSellerById(Long id) {
+        return sellerRepository.findById(id);
+    }
+    public Seller saveSeller(Seller seller) {
+        return sellerRepository.save(seller);
+    }
+    public void deleteSeller(Long id) {
+        sellerRepository.deleteById(id);
     }
 }

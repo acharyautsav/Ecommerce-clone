@@ -2,10 +2,14 @@ package com.Java.FinalProject.service;
 
 import com.Java.FinalProject.entity.Customer;
 import com.Java.FinalProject.repository.CustomerRepository;
+import com.Java.FinalProject.repository.CustomerOrderRepository;
+import com.Java.FinalProject.entity.CustomerOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -13,6 +17,9 @@ public class CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private CustomerOrderRepository customerOrderRepository;
 
     // Simple encryption using Base64 (for demonstration)
     public String encryptPassword(String password) {
@@ -62,5 +69,25 @@ public class CustomerService {
 
     public Optional<Customer> findById(Long customerId) {
         return customerRepository.findById(customerId);
+    }
+
+    public List<Customer> getAllCustomers() {
+        return customerRepository.findAll();
+    }
+
+    public Optional<Customer> getCustomerById(Long id) {
+        return customerRepository.findById(id);
+    }
+    public Customer saveCustomer(Customer customer) {
+        return customerRepository.save(customer);
+    }
+    @Transactional
+    public void deleteCustomer(Long id) {
+        Optional<Customer> customerOpt = customerRepository.findById(id);
+        if (customerOpt.isPresent()) {
+            Customer customer = customerOpt.get();
+            customerOrderRepository.deleteByCustomer(customer);
+            customerRepository.deleteById(id);
+        }
     }
 }

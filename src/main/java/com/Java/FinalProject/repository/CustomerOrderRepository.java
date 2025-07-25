@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface CustomerOrderRepository extends JpaRepository<CustomerOrder, Long> {
     Optional<CustomerOrder> findByCustomerAndOrderStatus(Customer customer, String orderStatus);
     List<CustomerOrder> findByCustomer(Customer customer);
+    void deleteByCustomer(Customer customer);
 } 

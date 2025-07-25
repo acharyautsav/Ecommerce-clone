@@ -422,29 +422,9 @@
             <div class="category-icon">🌐</div>
             <h3>Show All</h3>
         </div>
-        <div class="category-card" onclick="filterProducts('Electronics')">
-            <div class="category-icon">📱</div>
-            <h3>Electronics</h3>
-        </div>
-        <div class="category-card" onclick="filterProducts('Fashion')">
-            <div class="category-icon">👗</div>
-            <h3>Fashion</h3>
-        </div>
-        <div class="category-card" onclick="filterProducts('Home & Garden')">
-            <div class="category-icon">🏠</div>
-            <h3>Home & Garden</h3>
-        </div>
-        <div class="category-card" onclick="filterProducts('Sports')">
-            <div class="category-icon">⚽</div>
-            <h3>Sports</h3>
-        </div>
-        <div class="category-card" onclick="filterProducts('Books')">
-            <div class="category-icon">📚</div>
-            <h3>Books</h3>
-        </div>
-        <div class="category-card" onclick="filterProducts('Beauty')">
-            <div class="category-icon">💄</div>
-            <h3>Beauty</h3>
+        <div th:each="cat : ${categories}" class="category-card" data-category-name="[[${cat.categoryName}]]" onclick="filterProducts(this.getAttribute('data-category-name'))">
+            <div class="category-icon">🏷️</div>
+            <h3 th:text="${cat.categoryName}">Category</h3>
         </div>
     </section>
 

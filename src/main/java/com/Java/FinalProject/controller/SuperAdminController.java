@@ -1,0 +1,275 @@
+package com.Java.FinalProject.controller;
+
+import com.Java.FinalProject.entity.SuperAdmin;
+import com.Java.FinalProject.entity.Seller;
+import com.Java.FinalProject.entity.Customer;
+import com.Java.FinalProject.entity.ProductCategory;
+import com.Java.FinalProject.entity.Product;
+import com.Java.FinalProject.repository.ProductCategoryRepository;
+import com.Java.FinalProject.repository.ProductRepository;
+import com.Java.FinalProject.repository.ItemsOrderedRepository;
+import com.Java.FinalProject.service.SuperAdminService;
+import com.Java.FinalProject.service.SellerService;
+import com.Java.FinalProject.service.CustomerService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Optional;
+
+@Controller
+@RequestMapping("/superadmin")
+public class SuperAdminController {
+    @Autowired
+    private SuperAdminService superAdminService;
+    @Autowired
+    private SellerService sellerService;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private ProductCategoryRepository productCategoryRepository;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private ItemsOrderedRepository itemsOrderedRepository;
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "superadmin/login";
+    }
+
+    @PostMapping("/login")
+    public String processLogin(@RequestParam String username, @RequestParam String password, HttpSession session) {
+        Optional<SuperAdmin> adminOpt = superAdminService.authenticate(username, password);
+        if (adminOpt.isPresent()) {
+            session.setAttribute("superadminId", adminOpt.get().getId());
+            session.setAttribute("superadminUsername", adminOpt.get().getUsername());
+            return "redirect:/superadmin/dashboard";
+        }
+        return "redirect:/superadmin/login?error=1";
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(HttpSession session, Model model) {
+        if (session.getAttribute("superadminId") == null) {
+            return "redirect:/superadmin/login";
+        }
+        model.addAttribute("superadminUsername", session.getAttribute("superadminUsername"));
+        return "superadmin/dashboard";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/superadmin/login";
+    }
+
+    @GetMapping("/sellers")
+    public String manageSellers(HttpSession session, Model model) {
+        if (session.getAttribute("superadminId") == null) {
+            return "redirect:/superadmin/login";
+        }
+        List<Seller> sellers = sellerService.getAllSellers();
+        model.addAttribute("sellers", sellers);
+        return "superadmin/sellers";
+    }
+
+    @GetMapping("/customers")
+    public String manageCustomers(HttpSession session, Model model) {
+        if (session.getAttribute("superadminId") == null) {
+            return "redirect:/superadmin/login";
+        }
+        List<Customer> customers = customerService.getAllCustomers();
+        model.addAttribute("customers", customers);
+        return "superadmin/customers";
+    }
+
+    @GetMapping("/categories")
+    public String manageCategories(HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            return "redirect:/superadmin/login";
+        }
+        return "superadmin/categories";
+    }
+
+    @GetMapping("/products")
+    public String manageProducts(HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            return "redirect:/superadmin/login";
+        }
+        return "superadmin/products";
+    }
+
+    // --- REST API for Sellers ---
+    @GetMapping("/api/sellers")
+    @ResponseBody
+    public List<Seller> apiGetAllSellers(HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        return sellerService.getAllSellers();
+    }
+
+    @GetMapping("/api/sellers/{id}")
+    @ResponseBody
+    public Seller apiGetSellerById(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        return sellerService.getSellerById(id).orElseThrow(() -> new RuntimeException("Seller not found"));
+    }
+
+    @PostMapping("/api/sellers")
+    @ResponseBody
+    public Seller apiAddSeller(@RequestBody Seller seller, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        return sellerService.saveSeller(seller);
+    }
+
+    @PutMapping("/api/sellers/{id}")
+    @ResponseBody
+    public Seller apiUpdateSeller(@PathVariable Long id, @RequestBody Seller seller, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        seller.setSellerId(id);
+        return sellerService.saveSeller(seller);
+    }
+
+    @DeleteMapping("/api/sellers/{id}")
+    @ResponseBody
+    public void apiDeleteSeller(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        sellerService.deleteSeller(id);
+    }
+
+    // --- REST API for Customers ---
+    @GetMapping("/api/customers")
+    @ResponseBody
+    public List<Customer> apiGetAllCustomers(HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        return customerService.getAllCustomers();
+    }
+
+    @GetMapping("/api/customers/{id}")
+    @ResponseBody
+    public Customer apiGetCustomerById(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        return customerService.getCustomerById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
+    }
+
+    @PostMapping("/api/customers")
+    @ResponseBody
+    public Customer apiAddCustomer(@RequestBody Customer customer, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        return customerService.saveCustomer(customer);
+    }
+
+    @PutMapping("/api/customers/{id}")
+    @ResponseBody
+    public Customer apiUpdateCustomer(@PathVariable Long id, @RequestBody Customer customer, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        customer.setCustomerId(id);
+        return customerService.saveCustomer(customer);
+    }
+
+    @DeleteMapping("/api/customers/{id}")
+    @ResponseBody
+    public void apiDeleteCustomer(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        customerService.deleteCustomer(id);
+    }
+
+    // --- REST API for Categories ---
+    @GetMapping("/api/categories")
+    @ResponseBody
+    public List<ProductCategory> apiGetAllCategories(HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        return productCategoryRepository.findAll();
+    }
+
+    @PostMapping("/api/categories")
+    @ResponseBody
+    public ProductCategory apiAddCategory(@RequestBody ProductCategory category, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        return productCategoryRepository.save(category);
+    }
+
+    @PutMapping("/api/categories/{id}")
+    @ResponseBody
+    public ProductCategory apiUpdateCategory(@PathVariable Integer id, @RequestBody ProductCategory category, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        category.setCategoryId(id);
+        return productCategoryRepository.save(category);
+    }
+
+    @DeleteMapping("/api/categories/{id}")
+    @ResponseBody
+    public void apiDeleteCategory(@PathVariable Integer id, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        productCategoryRepository.deleteById(id);
+    }
+
+    // --- REST API for Products ---
+    @GetMapping("/api/products")
+    @ResponseBody
+    public List<Product> apiGetAllProducts(HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        return productRepository.findAll();
+    }
+
+    @PutMapping("/api/products/{id}")
+    @ResponseBody
+    public Product apiUpdateProduct(@PathVariable Long id, @RequestBody Product product, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        Product existing = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        existing.setProductName(product.getProductName());
+        existing.setCategory(product.getCategory());
+        existing.setPrice(product.getPrice());
+        existing.setDescription(product.getDescription());
+        // Optionally allow changing isActive or other fields if needed
+        return productRepository.save(existing);
+    }
+
+    @DeleteMapping("/api/products/{id}")
+    @ResponseBody
+    public void apiDeleteProduct(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("superadminId") == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+        Product product = productRepository.findById(id).orElse(null);
+        if (product != null) {
+            itemsOrderedRepository.deleteByProduct(product);
+            productRepository.deleteById(id);
+        }
+    }
+} 

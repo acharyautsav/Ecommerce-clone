@@ -422,12 +422,7 @@
                 <label for="category">Category *</label>
                 <select id="category" name="category" required>
                     <option value="">Select Category</option>
-                    <option value="Electronics">📱 Electronics</option>
-                    <option value="Fashion">👗 Fashion</option>
-                    <option value="Home & Garden">🏠 Home & Garden</option>
-                    <option value="Sports">⚽ Sports</option>
-                    <option value="Books">📚 Books</option>
-                    <option value="Beauty">💄 Beauty</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.categoryName}" th:text="${cat.categoryName}"></option>
                 </select>
             </div>
 
@@ -464,12 +459,7 @@
                 <label for="editCategory">Category *</label>
                 <select id="editCategory" name="category" required>
                     <option value="">Select Category</option>
-                    <option value="Electronics">📱 Electronics</option>
-                    <option value="Fashion">👗 Fashion</option>
-                    <option value="Home & Garden">🏠 Home & Garden</option>
-                    <option value="Sports">⚽ Sports</option>
-                    <option value="Books">📚 Books</option>
-                    <option value="Beauty">💄 Beauty</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.categoryName}" th:text="${cat.categoryName}"></option>
                 </select>
             </div>
             <div class="form-group">

@@ -4,6 +4,8 @@ import com.Java.FinalProject.entity.Product;
 import com.Java.FinalProject.entity.Seller;
 import com.Java.FinalProject.repository.ProductRepository;
 import com.Java.FinalProject.repository.SellerRepository;
+import com.Java.FinalProject.repository.ProductCategoryRepository;
+import com.Java.FinalProject.entity.ProductCategory;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class ProductService {
 
     @Autowired
     private SellerRepository sellerRepository;
+
+    @Autowired
+    private ProductCategoryRepository productCategoryRepository;
 
     /**
      * Add a new product
@@ -196,5 +201,9 @@ public class ProductService {
         }
 
         return productRepository.findByPriceRange(minPrice, maxPrice);
+    }
+
+    public List<ProductCategory> getAllCategories() {
+        return productCategoryRepository.findAll();
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 import com.Java.FinalProject.entity.Product;
 import com.Java.FinalProject.service.ProductService;
+import com.Java.FinalProject.entity.ProductCategory;
 
 @RequiredArgsConstructor
 @Controller
@@ -28,7 +29,7 @@ public class LoginController {
         }
         // Fetch all products and categories for the landing page
         model.addAttribute("products", productService.getAllActiveProductsWithSellerName());
-        model.addAttribute("categories", new String[]{"Electronics","Fashion","Home & Garden","Sports","Books","Beauty"});
+        model.addAttribute("categories", productService.getAllCategories());
         return "dashboard";
     }
 

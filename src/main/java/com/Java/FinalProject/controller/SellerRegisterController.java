@@ -2,6 +2,7 @@ package com.Java.FinalProject.controller;
 
 import com.Java.FinalProject.entity.Product;
 import com.Java.FinalProject.entity.Seller;
+import com.Java.FinalProject.entity.ProductCategory;
 import com.Java.FinalProject.service.ProductService;
 import com.Java.FinalProject.service.SellerService;
 import lombok.RequiredArgsConstructor;
@@ -93,10 +94,12 @@ public class SellerRegisterController {
         }
 
         List<Product> products = productService.getProductsBySeller(seller.getSellerId());
+        List<ProductCategory> categories = productService.getAllCategories();
 
         model.addAttribute("seller", seller);
         model.addAttribute("products", products);
         model.addAttribute("productCount", productService.getProductCountBySeller(seller.getSellerId()));
+        model.addAttribute("categories", categories);
 
         return "seller/sellerDashboard";
     }
