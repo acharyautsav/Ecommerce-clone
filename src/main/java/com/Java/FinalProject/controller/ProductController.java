@@ -81,7 +81,7 @@ public class ProductController {
         }
 
         model.addAttribute("products", products);
-        return "search-results"; // search-results.html template
+        return "products"; // Use products.html template for search results
     }
 
     /**
@@ -93,7 +93,8 @@ public class ProductController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            List<Product> products = productService.searchProducts(q);
+            // Use the new method to get product and sellerName
+            List<Map<String, Object>> products = productService.searchProductsWithSellerName(q);
             response.put("success", true);
             response.put("products", products);
             response.put("count", products.size());

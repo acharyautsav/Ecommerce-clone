@@ -119,6 +119,22 @@ public class ProductService {
     }
 
     /**
+     * Search products by name and return with seller name
+     */
+    public List<Map<String, Object>> searchProductsWithSellerName(String searchTerm) {
+        List<Product> products = searchProducts(searchTerm);
+        List<Map<String, Object>> result = new java.util.ArrayList<>();
+        for (Product product : products) {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("product", product);
+            Seller seller = sellerRepository.findById(product.getSellerId()).orElse(null);
+            map.put("sellerName", seller != null ? seller.getSellerName() : "Unknown");
+            result.add(map);
+        }
+        return result;
+    }
+
+    /**
      * Get product by ID
      */
     public Optional<Product> getProductById(Long productId) {

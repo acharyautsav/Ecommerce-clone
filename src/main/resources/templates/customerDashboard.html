@@ -65,7 +65,7 @@
     </section>
     <section class="products-section">
         <h2 class="section-title">Featured Products</h2>
-        <div class="products-grid">
+        <div class="products-grid" id="productsGrid">
             <div th:each="entry : ${products}">
                 <div class="product-card" th:attr="data-category=${entry.product.category}">
                     <div class="product-image">📦</div>
@@ -106,17 +106,64 @@
     function handleProductClick(productId) {
         window.location.href = '/product/' + productId;
     }
+
+    // AJAX Search
+    function renderProducts(products) {
+        const grid = document.getElementById('productsGrid');
+        grid.innerHTML = '';
+        if (!products || products.length === 0) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#666;">No products found.</div>';
+            return;
+        }
+        products.forEach(entry => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.setAttribute('data-category', entry.product.category);
+            card.innerHTML = `
+                <div class="product-image">📦</div>
+                <div class="product-info">
+                    <h3 class="product-title">${entry.product.productName}</h3>
+                    <p class="product-price">$${entry.product.price}</p>
+                    <div style="display: flex; gap: 8px; margin-bottom: 5px;">
+                        <button type="button" style="background: #28a745; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" onclick="addToCart(event, ${entry.product.productId})">Add to Cart</button>
+                        <button style="background: #ff6b35; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;">Buy</button>
+                    </div>
+                    <p class="seller-info">Category: ${entry.product.category}</p>
+                    <p class="seller-info">Sold by: ${entry.sellerName}</p>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function searchProductsAJAX(query) {
+        fetch('/products/api/search?q=' + encodeURIComponent(query))
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.products) {
+                    renderProducts(data.products); // data.products already has the correct structure
+                } else if (Array.isArray(data)) {
+                    renderProducts(data);
+                } else {
+                    renderProducts([]);
+                }
+            })
+            .catch(() => renderProducts([]));
+    }
+
+    // Search button click
     document.querySelector('.search-btn').addEventListener('click', function() {
         const searchTerm = document.querySelector('.search-bar').value;
-        if (searchTerm) {
-            window.location.href = '/products?search=' + encodeURIComponent(searchTerm);
-        }
+        searchProductsAJAX(searchTerm);
     });
+
+    // Search on Enter key
     document.querySelector('.search-bar').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             document.querySelector('.search-btn').click();
         }
     });
+
     // Modal functions (reuse from dashboard.html)
     function openModal(modalId) {
         document.getElementById(modalId).style.display = 'block';

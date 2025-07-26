@@ -582,6 +582,59 @@
         });
     }
 
+    // AJAX Search
+    function renderProducts(products) {
+        const grid = document.getElementById('productsGrid');
+        grid.innerHTML = '';
+        if (!products || products.length === 0) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#666;">No products found.</div>';
+            return;
+        }
+        products.forEach(entry => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.setAttribute('data-category', entry.product.category);
+            card.onclick = function() { handleProductClick(entry.product.productId); };
+            card.innerHTML = `
+                <div class="product-image">📦</div>
+                <div class="product-info">
+                    <h3 class="product-title">${entry.product.productName}</h3>
+                    <p class="product-price">$${entry.product.price}</p>
+                    <p class="seller-info">Category: ${entry.product.category}</p>
+                    <p class="seller-info">Sold by: ${entry.sellerName}</p>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function searchProductsAJAX(query) {
+        fetch('/products/api/search?q=' + encodeURIComponent(query))
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.products) {
+                    renderProducts(data.products); // data.products already has the correct structure
+                } else if (Array.isArray(data)) {
+                    renderProducts(data);
+                } else {
+                    renderProducts([]);
+                }
+            })
+            .catch(() => renderProducts([]));
+    }
+
+    // Search button click
+    document.querySelector('.search-btn').addEventListener('click', function() {
+        const searchTerm = document.querySelector('.search-bar').value;
+        searchProductsAJAX(searchTerm);
+    });
+    // Search on Enter key
+    document.querySelector('.search-bar').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.querySelector('.search-btn').click();
+        }
+    });
+
     // Modal functions
     function openModal(modalId) {
         document.getElementById(modalId).style.display = 'block';
@@ -671,24 +724,6 @@
             alert('Login failed! Invalid username/email or password.');
         }
     });
-
-    // Search functionality
-    document.querySelector('.search-btn').addEventListener('click', function() {
-        const searchTerm = document.querySelector('.search-bar').value;
-        if (searchTerm) {
-            window.location.href = '/products?search=' + encodeURIComponent(searchTerm);
-        }
-    });
-
-    // Search on Enter key
-    document.querySelector('.search-bar').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            document.querySelector('.search-btn').click();
-        }
-    });
-
-
-
 
     // Seller Registration Form Submission
     document.getElementById('sellerSignupForm').addEventListener('submit', function(e) {
