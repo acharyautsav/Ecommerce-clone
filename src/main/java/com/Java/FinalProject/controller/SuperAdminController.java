@@ -11,6 +11,7 @@ import com.Java.FinalProject.repository.ItemsOrderedRepository;
 import com.Java.FinalProject.service.SuperAdminService;
 import com.Java.FinalProject.service.SellerService;
 import com.Java.FinalProject.service.CustomerService;
+import com.Java.FinalProject.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,6 +36,9 @@ public class SuperAdminController {
     private ProductRepository productRepository;
     @Autowired
     private ItemsOrderedRepository itemsOrderedRepository;
+
+    @Autowired
+    private ProductService productService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -266,10 +270,6 @@ public class SuperAdminController {
         if (session.getAttribute("superadminId") == null) {
             throw new RuntimeException("Unauthorized");
         }
-        Product product = productRepository.findById(id).orElse(null);
-        if (product != null) {
-            itemsOrderedRepository.deleteByProduct(product);
-            productRepository.deleteById(id);
-        }
+        productService.hardDeleteProduct(id);
     }
 } 

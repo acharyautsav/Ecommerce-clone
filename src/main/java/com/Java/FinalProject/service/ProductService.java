@@ -5,6 +5,7 @@ import com.Java.FinalProject.entity.Seller;
 import com.Java.FinalProject.repository.ProductRepository;
 import com.Java.FinalProject.repository.SellerRepository;
 import com.Java.FinalProject.repository.ProductCategoryRepository;
+import com.Java.FinalProject.repository.ItemsOrderedRepository;
 import com.Java.FinalProject.entity.ProductCategory;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class ProductService {
 
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
+
+    @Autowired
+    private ItemsOrderedRepository itemsOrderedRepository;
 
     /**
      * Add a new product
@@ -205,5 +209,26 @@ public class ProductService {
 
     public List<ProductCategory> getAllCategories() {
         return productCategoryRepository.findAll();
+    }
+
+    /**
+     * Hard delete product (for superadmin use only)
+     * This method deletes all related items_ordered records first, then the product
+     */
+    public boolean hardDeleteProduct(Long productId) {
+        Optional<Product> productOpt = getProductById(productId);
+
+        if (productOpt.isEmpty()) {
+            throw new IllegalArgumentException("Product not found");
+        }
+
+        Product product = productOpt.get();
+        
+        // Delete related items_ordered records first
+        itemsOrderedRepository.deleteByProduct(product);
+        
+        // Then delete the product
+        productRepository.delete(product);
+        return true;
     }
 }
