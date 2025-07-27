@@ -62,6 +62,14 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/buy-now")
+    public ResponseEntity<?> buyNow(@RequestBody AddToCartRequest request, HttpSession session) {
+        Customer customer = getLoggedInCustomer(session);
+        cartService.buyNow(customer, request.getProductId(), request.getQuantity());
+        session.setAttribute("buyNowMode", true);
+        return ResponseEntity.ok().header("Location", "/cart").build();
+    }
+
     // DTO for add to cart
     public static class AddToCartRequest {
         private Long productId;

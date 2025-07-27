@@ -74,7 +74,7 @@
                         <p class="product-price" th:text="'$' + ${entry.product.price}">$0.00</p>
                         <div style="display: flex; gap: 8px; margin-bottom: 5px;">
                             <button type="button" style="background: #28a745; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" th:onclick="|addToCart(event, ${entry.product.productId})|">Add to Cart</button>
-                            <button style="background: #ff6b35; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;">Buy</button>
+                            <button type="button" style="background: #ff6b35; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" th:onclick="|buyNow(event, ${entry.product.productId})|">Buy</button>
                         </div>
                         <p class="seller-info" th:text="'Category: ' + ${entry.product.category}">Category: </p>
                         <p class="seller-info" th:text="'Sold by: ' + ${entry.sellerName}">Sold by: </p>
@@ -126,7 +126,7 @@
                     <p class="product-price">$${entry.product.price}</p>
                     <div style="display: flex; gap: 8px; margin-bottom: 5px;">
                         <button type="button" style="background: #28a745; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" onclick="addToCart(event, ${entry.product.productId})">Add to Cart</button>
-                        <button style="background: #ff6b35; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;">Buy</button>
+                        <button type="button" style="background: #ff6b35; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" onclick="buyNow(event, ${entry.product.productId})">Buy</button>
                     </div>
                     <p class="seller-info">Category: ${entry.product.category}</p>
                     <p class="seller-info">Sold by: ${entry.sellerName}</p>
@@ -200,6 +200,26 @@
             }
         })
         .catch(() => showToast('Failed to add to cart.'));
+    }
+
+    function buyNow(event, productId) {
+        if (event) event.stopPropagation();
+        fetch('/cart/buy-now', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId: productId, quantity: 1 })
+        })
+        .then(response => {
+            if (response.ok) {
+                // Redirect to cart page
+                window.location.href = '/cart';
+            } else {
+                showToast('Failed to add item to cart.');
+            }
+        })
+        .catch(() => showToast('Failed to add item to cart.'));
     }
 </script>
 </body>

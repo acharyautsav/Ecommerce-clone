@@ -91,4 +91,19 @@ public class CartService {
             }
         });
     }
+
+    // Clear the cart
+    public void clearCart(Customer customer) {
+        CustomerOrder cart = getOrCreateCart(customer);
+        List<ItemsOrdered> items = itemsOrderedRepository.findByCustomerOrder(cart);
+        for (ItemsOrdered item : items) {
+            itemsOrderedRepository.delete(item);
+        }
+    }
+
+    // Buy now - clear cart and add single item
+    public void buyNow(Customer customer, Long productId, int quantity) {
+        clearCart(customer);
+        addToCart(customer, productId, quantity);
+    }
 } 
