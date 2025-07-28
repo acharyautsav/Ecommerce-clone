@@ -322,6 +322,14 @@
             display: block;
         }
 
+        .order-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 1rem;
@@ -368,8 +376,41 @@
         <p>Manage your products and grow your business with ShopMart</p>
     </div>
 
-    <!-- Dashboard Actions -->
+    <!-- Orders Section -->
     <div class="dashboard-actions">
+        <h2 class="section-title">Pending Orders</h2>
+    </div>
+
+    <!-- Pending Orders Grid -->
+    <div class="products-grid" th:if="${pendingOrders != null and !pendingOrders.empty}">
+        <div class="product-card" th:each="order : ${pendingOrders}">
+            <div class="product-image" style="background: linear-gradient(135deg, #ffc107, #ff9800);">📦</div>
+            <div class="product-info">
+                <h3 th:text="'Order #' + ${order.orderId}">Order #123</h3>
+                <span class="product-category" th:text="${order.customer.customerName}">Customer Name</span>
+                <div class="product-price">
+                    $<span th:text="${order.totalAmount}">99.99</span>
+                    <span class="order-status" style="background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px;" th:text="${order.orderStatus}">PENDING</span>
+                </div>
+                <p class="product-description" th:text="'Payment: ' + ${order.paymentStatus} + ' via ' + ${order.paymentMethod}">Payment info</p>
+                <p class="product-description" th:text="'Date: ' + ${#temporals.format(order.createdAt, 'MMM dd, yyyy HH:mm')}">Date</p>
+                <div style="margin-top: 10px;">
+                    <button class="btn btn-primary btn-sm" th:onclick="|confirmOrder(${order.orderId})|" style="margin-right: 5px;">Confirm Order</button>
+                    <button class="btn btn-success btn-sm" th:onclick="|shipOrder(${order.orderId})|">Ship Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Pending Orders Message -->
+    <div class="no-products" th:if="${pendingOrders == null or pendingOrders.empty}">
+        <i>📦</i>
+        <h3>No Pending Orders</h3>
+        <p>All orders have been processed or no new orders yet!</p>
+    </div>
+
+    <!-- Products Section -->
+    <div class="dashboard-actions" style="margin-top: 40px;">
         <h2 class="section-title">My Products</h2>
         <button class="add-product-btn" onclick="openAddProductModal()">+ Add New Product</button>
     </div>
@@ -593,6 +634,52 @@
         .catch(error => {
             console.error('Error:', error);
             alert('Failed to delete product');
+        });
+    }
+
+    function confirmOrder(orderId) {
+        if (!confirm('Are you sure you want to confirm this order?')) return;
+        const formData = new FormData();
+        formData.append('orderId', orderId);
+        fetch('/seller/confirmOrder', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Order confirmed successfully!');
+                window.location.reload(); // Refresh to show updated order status
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to confirm order');
+        });
+    }
+
+    function shipOrder(orderId) {
+        if (!confirm('Are you sure you want to ship this order?')) return;
+        const formData = new FormData();
+        formData.append('orderId', orderId);
+        fetch('/seller/shipOrder', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Order shipped successfully!');
+                window.location.reload(); // Refresh to show updated order status
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to ship order');
         });
     }
 </script>

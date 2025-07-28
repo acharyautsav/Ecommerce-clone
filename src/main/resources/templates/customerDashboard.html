@@ -36,6 +36,73 @@
         .seller-info { font-size: 12px; color: #666; }
         .footer { background: #333; color: white; text-align: center; padding: 20px 0; margin-top: 50px; }
         @media (max-width: 768px) { .header-container { flex-direction: column; gap: 15px; } .search-container { margin: 0; max-width: 100%; } .nav-links { flex-wrap: wrap; justify-content: center; } .hero-title { font-size: 28px; } .products-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); } }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Toast notification styles */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 10001;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            font-weight: bold;
+            text-align: center;
+            min-width: 200px;
+        }
     </style>
 </head>
 <body>
@@ -87,6 +154,30 @@
 <footer class="footer">
     <p>&copy; 2025 ShopMart. All rights reserved.</p>
 </footer>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<!-- Payment Success Popup -->
+<div id="paymentPopup" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <div id="paymentIcon" style="font-size: 60px; margin-bottom: 20px;">✅</div>
+        <h2 id="paymentTitle" style="color: #28a745; margin-bottom: 15px;">Payment Successful!</h2>
+        <p id="paymentMessage" style="margin-bottom: 20px; color: #666;">Your payment has been processed successfully. Your order has been placed.</p>
+        <button onclick="closePaymentPopup()" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px;">Continue Shopping</button>
+    </div>
+</div>
+
+<!-- Payment Failed Popup -->
+<div id="paymentFailedPopup" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <div id="paymentFailedIcon" style="font-size: 60px; margin-bottom: 20px;">❌</div>
+        <h2 id="paymentFailedTitle" style="color: #dc3545; margin-bottom: 15px;">Payment Failed</h2>
+        <p id="paymentFailedMessage" style="margin-bottom: 20px; color: #666;">Your payment could not be processed. Please try again.</p>
+        <button onclick="closePaymentFailedPopup()" style="background: #dc3545; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px;">Try Again</button>
+    </div>
+</div>
+
 <!-- Cart Modal -->
 <div id="cartModal" class="modal" style="display:none;">
     <div class="modal-content" style="max-width: 500px;">
@@ -97,10 +188,6 @@
             <p>No items in cart.</p>
         </div>
     </div>
-</div>
-<!-- Toast Notification -->
-<div id="toast" style="visibility:hidden; min-width:200px; background:#333; color:#fff; text-align:center; border-radius:8px; padding:16px; position:fixed; z-index:9999; left:50%; bottom:30px; font-size:17px; transform:translateX(-50%); transition:visibility 0s, opacity 0.5s linear; opacity:0;">
-    Item added to cart!
 </div>
 <script>
     function handleProductClick(productId) {
@@ -221,6 +308,39 @@
         })
         .catch(() => showToast('Failed to add item to cart.'));
     }
+
+    // Payment popup functions
+    function showPaymentSuccessPopup() {
+        showToast('Payment Successful! Your order has been placed.');
+    }
+
+    function showPaymentFailedPopup() {
+        showToast('Payment Failed! Please try again.');
+    }
+
+    function closePaymentPopup() {
+        document.getElementById('paymentPopup').style.display = 'none';
+    }
+
+    function closePaymentFailedPopup() {
+        document.getElementById('paymentFailedPopup').style.display = 'none';
+    }
+
+    // Check for payment status on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentStatus = urlParams.get('payment');
+        
+        if (paymentStatus === 'success') {
+            showPaymentSuccessPopup();
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (paymentStatus === 'failed') {
+            showPaymentFailedPopup();
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
 </script>
 </body>
 </html> 

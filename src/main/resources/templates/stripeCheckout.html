@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout - Stripe Payment</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .amount {
+            text-align: center;
+            font-size: 24px;
+            color: #28a745;
+            margin-bottom: 30px;
+        }
+        #card-element {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+        #card-errors {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Complete Your Payment</h1>
+        <div class="amount">Total: $<span th:text="${amount}">0.00</span></div>
+        
+        <form id="payment-form">
+            <div id="card-element"></div>
+            <div id="card-errors" class="error-message" style="display: none;"></div>
+            <div id="payment-success" class="success-message" style="display: none; color: #28a745; font-weight: bold; margin-top: 10px;"></div>
+            
+            <button id="submit-button" type="submit">
+                <span id="spinner" style="display: none;">Processing...</span>
+                <span id="button-text">Pay $<span th:text="${amount}">0</span></span>
+            </button>
+        </form>
+    </div>
+
+    <script th:inline="javascript">
+        const stripe = Stripe('[[${publishableKey}]]');
+        const elements = stripe.elements();
+        
+        const cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+        
+        // Helper functions
+        function setLoading(isLoading) {
+            const submitButton = document.getElementById('submit-button');
+            const spinner = document.getElementById('spinner');
+            const buttonText = document.getElementById('button-text');
+            
+            submitButton.disabled = isLoading;
+            spinner.style.display = isLoading ? 'block' : 'none';
+            buttonText.style.display = isLoading ? 'none' : 'block';
+        }
+        
+        function showError(message) {
+            const errorElement = document.getElementById('card-errors');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        function hideError() {
+            const errorElement = document.getElementById('card-errors');
+            errorElement.style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const successElement = document.getElementById('payment-success');
+            successElement.textContent = message;
+            successElement.style.display = 'block';
+        }
+        
+        // Handle form submission
+        const form = document.getElementById('payment-form');
+        const submitButton = document.getElementById('submit-button');
+        const spinner = document.getElementById('spinner');
+        const buttonText = document.getElementById('button-text');
+        
+        cardElement.addEventListener('change', function(event) {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+        
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            setLoading(true);
+            
+            try {
+                // Create payment intent
+                const response = await fetch('/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: [[${amount}]] // Remove quotes around Thymeleaf variable
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create payment intent');
+                }
+                
+                const data = await response.json();
+                
+                // Confirm payment
+                const { error } = await stripe.confirmCardPayment(data.clientSecret, {
+                    payment_method: {
+                        card: cardElement
+                        // Remove billing_details since we don't have cardholder name field
+                    }
+                });
+                
+                if (error) {
+                    showError(error.message);
+                } else {
+                    showSuccess('Payment successful!');
+                    // Redirect to success page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/stripe/success';
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                showError('Payment failed. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        });
+        
+        // Handle real-time validation errors
+        cardElement.addEventListener('change', ({error}) => {
+            if (error) {
+                showError(error.message);
+            } else {
+                hideError();
+            }
+        });
+        
+        // Ignore Stripe analytics errors (blocked by ad blockers)
+        window.addEventListener('error', function(e) {
+            if (e.message && e.message.includes('r.stripe.com')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(e) {
+            if (e.reason && e.reason.message && e.reason.message.includes('r.stripe.com')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html> 

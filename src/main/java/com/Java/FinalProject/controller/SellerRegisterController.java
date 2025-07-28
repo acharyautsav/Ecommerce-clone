@@ -1,10 +1,11 @@
 package com.Java.FinalProject.controller;
 
 import com.Java.FinalProject.entity.Product;
-import com.Java.FinalProject.entity.Seller;
 import com.Java.FinalProject.entity.ProductCategory;
+import com.Java.FinalProject.entity.Seller;
 import com.Java.FinalProject.service.ProductService;
 import com.Java.FinalProject.service.SellerService;
+import com.Java.FinalProject.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class SellerRegisterController {
 
     private final SellerService sellerService;
     private final ProductService productService;
+    private final OrderService orderService;
 
     /* Existing Auth Endpoints */
 
@@ -95,13 +97,71 @@ public class SellerRegisterController {
 
         List<Product> products = productService.getProductsBySeller(seller.getSellerId());
         List<ProductCategory> categories = productService.getAllCategories();
+        
+        // Get pending orders for this seller
+        List<com.Java.FinalProject.entity.Order> pendingOrders = orderService.getPendingOrdersBySeller(seller.getSellerId());
 
         model.addAttribute("seller", seller);
         model.addAttribute("products", products);
         model.addAttribute("productCount", productService.getProductCountBySeller(seller.getSellerId()));
         model.addAttribute("categories", categories);
+        model.addAttribute("pendingOrders", pendingOrders);
 
         return "seller/sellerDashboard";
+    }
+
+    @PostMapping("/confirmOrder")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> confirmOrder(
+            @RequestParam Long orderId,
+            HttpSession session
+    ) {
+        Map<String, Object> response = new HashMap<>();
+        Seller seller = (Seller) session.getAttribute("seller");
+
+        if (seller == null) {
+            response.put("status", "error");
+            response.put("message", "Session expired. Please login again.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        try {
+            orderService.confirmOrder(orderId);
+            response.put("status", "success");
+            response.put("message", "Order confirmed successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/shipOrder")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> shipOrder(
+            @RequestParam Long orderId,
+            HttpSession session
+    ) {
+        Map<String, Object> response = new HashMap<>();
+        Seller seller = (Seller) session.getAttribute("seller");
+
+        if (seller == null) {
+            response.put("status", "error");
+            response.put("message", "Session expired. Please login again.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        try {
+            orderService.shipOrder(orderId);
+            response.put("status", "success");
+            response.put("message", "Order shipped successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @PostMapping("/addProduct")
