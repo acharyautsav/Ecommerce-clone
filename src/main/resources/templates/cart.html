@@ -103,9 +103,193 @@ function changeQuantity(itemId, action) {
     }).catch(() => alert('Failed to update quantity.'));
 }
 </script>
-    <div th:if="${!#lists.isEmpty(cartItems)}" style="margin-top: 24px; text-align: right; margin-right: 1.5cm;">
-        <button style="background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 18px; font-weight: bold; cursor: pointer;">Checkout</button>
+    <div th:if="${!#lists.isEmpty(cartItems)}" style="margin-top: 24px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="flex:1; text-align: left; min-width:0;">
+            <span id="delivery-address-box" th:if="${deliveryAddress != null}" style="background: #f8f9fa; border-left: 4px solid #28a745; padding: 10px 18px; border-radius: 6px; color: #333; font-size: 16px; display: inline-block; max-width: 350px; word-break: break-word; white-space: pre-line; vertical-align: middle;">
+                <b>Delivery Address:</b> <span id="delivery-address-text" th:text="${deliveryAddress}">Not set</span>
+            </span>
+        </div>
+        <div style="flex-shrink:0; text-align: right;">
+            <button id="open-address-modal" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 18px; font-weight: bold; cursor: pointer; margin-right: 16px;">Set Delivery Address</button>
+            <button style="background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 18px; font-weight: bold; cursor: pointer;">Checkout</button>
+        </div>
     </div>
+
+    <!-- Delivery Address Modal -->
+    <div id="address-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.35); z-index:2000; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:12px; max-width:700px; width:98vw; margin:auto; box-shadow:0 8px 32px rgba(0,0,0,0.18); position:relative; padding:0 0 24px 0;">
+            <div style="padding:18px 24px 0 24px; display:flex; align-items:center; justify-content:space-between;">
+                <h2 style="font-size:22px; color:#333; margin:0;">Set Delivery Address</h2>
+                <button id="close-address-modal" style="background:none; border:none; font-size:28px; color:#888; cursor:pointer;">&times;</button>
+            </div>
+            <div style="padding:0 24px 0 24px;">
+                <div class="instructions" style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 12px 0 10px 0; border-left: 4px solid #2196f3; font-size:15px;">
+                    <b>1.</b> Search or click on the map to set your delivery location.<br>
+                    <b>2.</b> Click "Save Address" to confirm.
+                </div>
+                <div class="search-container" style="position:relative; margin-bottom:10px;">
+                    <input type="text" id="modal-search-input" class="search-input" placeholder="Search for your address..." style="width:100%; padding:10px; border:1.5px solid #ddd; border-radius:7px; font-size:15px;">
+                    <div id="modal-search-results" class="search-results" style="position:absolute; top:100%; left:0; right:0; background:white; border:1px solid #ddd; border-top:none; border-radius:0 0 8px 8px; max-height:180px; overflow-y:auto; z-index:1000; display:none;"></div>
+                </div>
+                <div id="modal-map" style="width:100%; height:300px; border-radius:8px; margin-bottom:12px;"></div>
+                <div id="modal-address-display" class="address-display" style="display:none; background:#f8f9fa; padding:10px; border-radius:8px; border-left:4px solid #f7931e; margin-bottom:10px;">
+                    <div class="address-text" id="modal-address-text" style="font-size:15px; color:#333; margin-bottom:3px;"></div>
+                    <div class="coordinates" id="modal-coordinates" style="font-size:13px; color:#666;"></div>
+                </div>
+                <div style="display:flex; gap:12px; justify-content:flex-end;">
+                    <button class="btn btn-secondary" id="modal-cancel-btn" style="background: linear-gradient(135deg, #6c757d, #495057); color: white; border:none; border-radius:8px; padding:10px 22px; font-size:15px; font-weight:bold; cursor:pointer;">Cancel</button>
+                    <button class="btn btn-primary" id="modal-save-btn" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; border:none; border-radius:8px; padding:10px 22px; font-size:15px; font-weight:bold; cursor:pointer;" disabled>Save Address</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    // Modal logic
+    const addressModal = document.getElementById('address-modal');
+    const openModalBtn = document.getElementById('open-address-modal');
+    const closeModalBtn = document.getElementById('close-address-modal');
+    const cancelModalBtn = document.getElementById('modal-cancel-btn');
+    openModalBtn.onclick = () => { addressModal.style.display = 'flex'; setTimeout(initModalMap, 50); };
+    closeModalBtn.onclick = cancelModalBtn.onclick = () => { addressModal.style.display = 'none'; };
+    window.addEventListener('keydown', e => { if (e.key === 'Escape') addressModal.style.display = 'none'; });
+
+    // Modal map logic
+    let modalMap, modalMarker, modalSelectedLocation;
+    function initModalMap() {
+        if (!modalMap) {
+            modalMap = L.map('modal-map').setView([40.7128, -74.0060], 10);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(modalMap);
+            modalMap.on('click', function(e) {
+                setModalMarker(e.latlng);
+                reverseGeocodeModal(e.latlng);
+            });
+        } else {
+            modalMap.invalidateSize();
+        }
+        // Reset state
+        if (modalMarker) { modalMap.removeLayer(modalMarker); modalMarker = null; }
+        modalSelectedLocation = null;
+        document.getElementById('modal-address-display').style.display = 'none';
+        document.getElementById('modal-save-btn').disabled = true;
+        document.getElementById('modal-search-input').value = '';
+        document.getElementById('modal-search-results').style.display = 'none';
+    }
+    function setModalMarker(latlng) {
+        if (modalMarker) modalMap.removeLayer(modalMarker);
+        modalMarker = L.marker(latlng).addTo(modalMap);
+    }
+    function reverseGeocodeModal(latlng) {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}&zoom=18&addressdetails=1`;
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                if (data.display_name) {
+                    modalSelectedLocation = {
+                        address: data.display_name,
+                        latitude: latlng.lat,
+                        longitude: latlng.lng
+                    };
+                    showModalAddress();
+                }
+            });
+    }
+    function showModalAddress() {
+        if (modalSelectedLocation) {
+            document.getElementById('modal-address-display').style.display = 'block';
+            document.getElementById('modal-address-text').textContent = modalSelectedLocation.address;
+            document.getElementById('modal-coordinates').textContent = `Coordinates: ${modalSelectedLocation.latitude.toFixed(6)}, ${modalSelectedLocation.longitude.toFixed(6)}`;
+            document.getElementById('modal-save-btn').disabled = false;
+        }
+    }
+    // Search logic
+    let modalSearchTimeout;
+    document.getElementById('modal-search-input').addEventListener('input', function(e) {
+        const query = e.target.value.trim();
+        clearTimeout(modalSearchTimeout);
+        if (!query) {
+            document.getElementById('modal-search-results').style.display = 'none';
+            return;
+        }
+        modalSearchTimeout = setTimeout(() => {
+            if (query.length >= 3) searchAddressModal(query);
+        }, 400);
+    });
+    function searchAddressModal(query) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`;
+        fetch(url)
+            .then(r => r.json())
+            .then(data => displayModalSearchResults(data));
+    }
+    function displayModalSearchResults(results) {
+        const searchResults = document.getElementById('modal-search-results');
+        searchResults.innerHTML = '';
+        if (results.length === 0) {
+            searchResults.innerHTML = '<div class="search-result-item">No results found</div>';
+            searchResults.style.display = 'block';
+            return;
+        }
+        results.forEach(result => {
+            const item = document.createElement('div');
+            item.className = 'search-result-item';
+            item.textContent = result.display_name;
+            item.onclick = () => selectModalSearchResult(result);
+            searchResults.appendChild(item);
+        });
+        searchResults.style.display = 'block';
+    }
+    function selectModalSearchResult(result) {
+        const coordinates = [parseFloat(result.lat), parseFloat(result.lon)];
+        setModalMarker(coordinates);
+        modalMap.setView(coordinates, 16);
+        modalSelectedLocation = {
+            address: result.display_name,
+            latitude: coordinates[0],
+            longitude: coordinates[1]
+        };
+        showModalAddress();
+        document.getElementById('modal-search-results').style.display = 'none';
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.search-container')) {
+            document.getElementById('modal-search-results').style.display = 'none';
+        }
+    });
+    document.getElementById('modal-search-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const query = this.value.trim();
+            if (query) searchAddressModal(query);
+        }
+    });
+    // Save address
+    document.getElementById('modal-save-btn').onclick = function() {
+        if (!modalSelectedLocation) return;
+        const formData = new FormData();
+        formData.append('address', modalSelectedLocation.address);
+        formData.append('latitude', modalSelectedLocation.latitude.toString());
+        formData.append('longitude', modalSelectedLocation.longitude.toString());
+        fetch('/delivery/save-address', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(result => {
+            if (result === 'success') {
+                // Update address on cart page without reload
+                document.getElementById('delivery-address-text').textContent = modalSelectedLocation.address;
+                document.getElementById('delivery-address-box').style.display = 'inline-block';
+                addressModal.style.display = 'none';
+            } else {
+                alert('Failed to save address. Please try again.');
+            }
+        })
+        .catch(() => alert('Failed to save address. Please try again.'));
+    };
+    </script>
 </main>
 </body>
 </html> 

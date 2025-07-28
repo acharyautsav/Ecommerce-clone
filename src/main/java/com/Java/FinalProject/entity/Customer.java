@@ -17,6 +17,10 @@ public class Customer {
     private String customerEmail;
     private String customerUsername;
     private String customerPassword;
-
+    
+    // Delivery address fields
+    private String deliveryAddress;
+    private String deliveryLatitude;
+    private String deliveryLongitude;
 
 }

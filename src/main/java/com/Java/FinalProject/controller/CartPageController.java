@@ -29,14 +29,13 @@ public class CartPageController {
             .mapToDouble(i -> i.getItemsOrderedPrice() * i.getItemsOrderedQuantity())
             .sum();
         model.addAttribute("cartTotal", cartTotal);
-        
+        // Add delivery address to the model
+        model.addAttribute("deliveryAddress", customer.getDeliveryAddress());
         // Check if this is buy now mode
         Boolean buyNowMode = (Boolean) session.getAttribute("buyNowMode");
         model.addAttribute("buyNowMode", buyNowMode != null ? buyNowMode : false);
-        
         // Clear the buy now mode flag
         session.removeAttribute("buyNowMode");
-        
         return "cart";
     }
 } 
