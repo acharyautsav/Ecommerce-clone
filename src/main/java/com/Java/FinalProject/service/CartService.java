@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 public class CartService {
@@ -99,6 +100,25 @@ public class CartService {
         for (ItemsOrdered item : items) {
             itemsOrderedRepository.delete(item);
         }
+        // Also delete the cart itself
+        customerOrderRepository.delete(cart);
+    }
+    
+    // Clear cart by customer ID (for payment processing)
+    public void clearCartByCustomerId(Long customerId) {
+        Customer customer = customerRepository.findById(customerId).orElse(null);
+        if (customer != null) {
+            clearCart(customer);
+        }
+    }
+    
+    // Get cart items by customer ID (for payment processing)
+    public List<ItemsOrdered> getCartItemsByCustomerId(Long customerId) {
+        Customer customer = customerRepository.findById(customerId).orElse(null);
+        if (customer != null) {
+            return getCartItems(customer);
+        }
+        return new ArrayList<>();
     }
 
     // Buy now - clear cart and add single item

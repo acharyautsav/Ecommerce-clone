@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/cart")
@@ -68,6 +69,29 @@ public class CartController {
         cartService.buyNow(customer, request.getProductId(), request.getQuantity());
         session.setAttribute("buyNowMode", true);
         return ResponseEntity.ok().header("Location", "/cart").build();
+    }
+    
+    // Test endpoint for debugging cart clearing
+    @PostMapping("/test-clear-cart")
+    public ResponseEntity<?> testClearCart(HttpSession session) {
+        try {
+            Customer customer = getLoggedInCustomer(session);
+            List<ItemsOrdered> beforeItems = cartService.getCartItems(customer);
+            System.out.println("Before clearing: " + beforeItems.size() + " items");
+            
+            cartService.clearCart(customer);
+            
+            List<ItemsOrdered> afterItems = cartService.getCartItems(customer);
+            System.out.println("After clearing: " + afterItems.size() + " items");
+            
+            return ResponseEntity.ok().body(Map.of(
+                "message", "Cart cleared successfully",
+                "beforeCount", beforeItems.size(),
+                "afterCount", afterItems.size()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     // DTO for add to cart

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ? ${title} : 'E-commerce Application'">E-commerce Application</title>
+    
+    <!-- Include Stripe error handler to suppress ad blocker related console errors -->
+    <script th:src="@{/js/stripe-error-handler.js}"></script>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    
+    <!-- Stripe.js (only load on pages that need it) -->
+    <script th:if="${loadStripe}" src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Additional head content -->
+    <th:block th:replace="${headContent} ?: ~{}">
+        <!-- Default head content -->
+    </th:block>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">E-commerce Store</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/customer/dashboard">Customer Dashboard</a>
+                <a class="nav-link" href="/seller/dashboard">Seller Dashboard</a>
+                <a class="nav-link" href="/superadmin/dashboard">Admin Dashboard</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main content -->
+    <div class="container mt-4">
+        <th:block th:replace="${content}">
+            <!-- Default content -->
+        </th:block>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Additional scripts -->
+    <th:block th:replace="${scripts} ?: ~{}">
+        <!-- Default scripts -->
+    </th:block>
+</body>
+</html>

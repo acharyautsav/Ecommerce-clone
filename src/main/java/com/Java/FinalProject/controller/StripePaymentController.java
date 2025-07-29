@@ -3,6 +3,7 @@ package com.Java.FinalProject.controller;
 import com.Java.FinalProject.config.StripeConfig;
 import com.Java.FinalProject.repository.CustomerRepository;
 import com.Java.FinalProject.service.OrderService;
+import com.Java.FinalProject.service.CartService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
@@ -29,6 +30,9 @@ public class StripePaymentController {
     
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private CartService cartService;
 
     @GetMapping("/stripe/checkout")
     public String stripeCheckout(@RequestParam("amount") String amount, Model model) {
@@ -85,6 +89,9 @@ public class StripePaymentController {
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                     .setAmount(amountInCents)
                     .setCurrency("usd")
+                    .setAutomaticPaymentMethods(PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                            .setEnabled(true)
+                            .build())
                     .build();
             
             System.out.println("Creating payment intent with params: " + params);
@@ -106,12 +113,30 @@ public class StripePaymentController {
 
     @GetMapping("/stripe/success")
     public String stripeSuccess(HttpSession session, Model model) {
+        System.out.println("=== Stripe Payment Success ===");
+        
         // Get customer ID from session
         Long customerId = (Long) session.getAttribute("customerId");
+        System.out.println("Customer ID from session: " + customerId);
         
         if (customerId != null) {
-            // Process the payment success - create orders and clear cart
-            orderService.processPaymentSuccess(customerId, "STRIPE");
+            try {
+                // Process the payment success - create orders and clear cart
+                orderService.processPaymentSuccess(customerId, "STRIPE");
+                System.out.println("Payment processing completed successfully");
+            } catch (Exception e) {
+                System.err.println("Error processing payment success: " + e.getMessage());
+                e.printStackTrace();
+                // Even if processing fails, we should still try to clear the cart
+                try {
+                    cartService.clearCartByCustomerId(customerId);
+                    System.out.println("Cart cleared as fallback");
+                } catch (Exception cartError) {
+                    System.err.println("Error clearing cart: " + cartError.getMessage());
+                }
+            }
+        } else {
+            System.err.println("ERROR: No customer ID found in session!");
         }
         
         model.addAttribute("message", "Payment successful! Your order has been placed.");

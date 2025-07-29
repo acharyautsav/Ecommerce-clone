@@ -26,6 +26,9 @@ public class OrderService {
     @Autowired
     private SellerRepository sellerRepository;
     
+    @Autowired
+    private CartService cartService;
+    
     @Transactional
     public void processPaymentSuccess(Long customerId, String paymentMethod) {
         System.out.println("=== Processing Payment Success ===");
@@ -40,44 +43,42 @@ public class OrderService {
         }
         System.out.println("Customer found: " + customer.getCustomerName());
         
-        // Get customer's current cart
-        CustomerOrder cart = customerOrderRepository.findByCustomerAndOrderStatus(customer, "PENDING").orElse(null);
+        // Get cart items using CartService
+        List<ItemsOrdered> cartItems = cartService.getCartItemsByCustomerId(customerId);
+        System.out.println("Cart items count: " + cartItems.size());
         
-        if (cart != null) {
-            System.out.println("Cart found: " + cart.getOrderId());
-            // Get cart items
-            List<ItemsOrdered> cartItems = itemsOrderedRepository.findByCustomerOrder(cart);
-            System.out.println("Cart items count: " + cartItems.size());
-            
-            // Group items by seller and create orders
-            for (ItemsOrdered item : cartItems) {
-                Product product = item.getProduct();
-                Seller seller = sellerRepository.findById(product.getSellerId()).orElse(null);
-                
-                if (seller != null) {
-                    // Create new order for this seller
-                    Order order = new Order();
-                    order.setCustomer(customer);
-                    order.setSeller(seller);
-                    order.setTotalAmount(item.getItemsOrderedPrice() * item.getItemsOrderedQuantity());
-                    order.setPaymentStatus("PAID");
-                    order.setOrderStatus("PENDING");
-                    order.setPaymentMethod(paymentMethod);
-                    
-                    orderRepository.save(order);
-                    System.out.println("Created order: " + order.getOrderId() + " for seller: " + seller.getSellerName());
-                }
-            }
-            
-            // Clear the cart
-            System.out.println("Clearing cart items...");
-            itemsOrderedRepository.deleteAll(cartItems);
-            System.out.println("Deleting cart...");
-            customerOrderRepository.delete(cart);
-            System.out.println("Cart cleared successfully!");
-        } else {
-            System.out.println("No pending cart found for customer");
+        if (cartItems.isEmpty()) {
+            System.out.println("WARNING: Cart is empty, nothing to process");
+            return;
         }
+        
+        // Group items by seller and create orders
+        for (ItemsOrdered item : cartItems) {
+            Product product = item.getProduct();
+            Seller seller = sellerRepository.findById(product.getSellerId()).orElse(null);
+            
+            if (seller != null) {
+                // Create new order for this seller
+                Order order = new Order();
+                order.setCustomer(customer);
+                order.setSeller(seller);
+                order.setTotalAmount(item.getItemsOrderedPrice() * item.getItemsOrderedQuantity());
+                order.setPaymentStatus("PAID");
+                order.setOrderStatus("PENDING");
+                order.setPaymentMethod(paymentMethod);
+                
+                orderRepository.save(order);
+                System.out.println("Created order: " + order.getOrderId() + " for seller: " + seller.getSellerName());
+            } else {
+                System.out.println("ERROR: Seller not found for product: " + product.getProductId());
+            }
+        }
+        
+        // Clear the cart using CartService
+        System.out.println("Clearing cart using CartService...");
+        cartService.clearCartByCustomerId(customerId);
+        System.out.println("Cart cleared successfully!");
+        
         System.out.println("=== Payment Processing Complete ===");
     }
     

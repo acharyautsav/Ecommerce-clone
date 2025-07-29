@@ -11,6 +11,10 @@ import jakarta.servlet.http.HttpSession;
 import com.Java.FinalProject.entity.Product;
 import com.Java.FinalProject.service.ProductService;
 import com.Java.FinalProject.entity.ProductCategory;
+import com.Java.FinalProject.entity.ItemsOrdered;
+import com.Java.FinalProject.service.CartService;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
@@ -19,6 +23,7 @@ public class LoginController {
 
     private final CustomerService customerService;
     private final ProductService productService;
+    private final CartService cartService;
 
     @GetMapping("/")
     public String homePage(HttpSession session, Model model) {
@@ -45,6 +50,18 @@ public class LoginController {
         if (customerId == null || customerName == null) {
             return "redirect:/";
         }
+        
+        // Add cart status for debugging
+        try {
+            List<ItemsOrdered> cartItems = cartService.getCartItemsByCustomerId(customerId);
+            model.addAttribute("cartItemCount", cartItems.size());
+            model.addAttribute("cartItems", cartItems);
+            System.out.println("Customer " + customerName + " has " + cartItems.size() + " items in cart");
+        } catch (Exception e) {
+            System.err.println("Error getting cart items: " + e.getMessage());
+            model.addAttribute("cartItemCount", 0);
+        }
+        
         model.addAttribute("customerName", customerName);
         model.addAttribute("products", productService.getAllActiveProductsWithSellerName());
         return "customerDashboard";
