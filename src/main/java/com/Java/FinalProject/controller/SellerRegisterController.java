@@ -55,11 +55,17 @@ public class SellerRegisterController {
             );
 
             session.setAttribute("seller", authenticatedSeller);
+            System.out.println("=== Seller Login Success ===");
+            System.out.println("Seller ID: " + authenticatedSeller.getSellerId());
+            System.out.println("Seller Name: " + authenticatedSeller.getSellerName());
+            System.out.println("Session ID: " + session.getId());
+            
             response.put("status", "success");
             response.put("redirectUrl", "/seller/dashboard");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            System.err.println("Seller login error: " + e.getMessage());
             response.put("status", "error");
             response.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);

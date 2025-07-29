@@ -395,8 +395,7 @@
                 <p class="product-description" th:text="'Payment: ' + ${order.paymentStatus} + ' via ' + ${order.paymentMethod}">Payment info</p>
                 <p class="product-description" th:text="'Date: ' + ${#temporals.format(order.createdAt, 'MMM dd, yyyy HH:mm')}">Date</p>
                 <div style="margin-top: 10px;">
-                    <button class="btn btn-primary btn-sm" th:onclick="|confirmOrder(${order.orderId})|" style="margin-right: 5px;">Confirm Order</button>
-                    <button class="btn btn-success btn-sm" th:onclick="|shipOrder(${order.orderId})|">Ship Order</button>
+                    <button class="btn btn-success btn-sm" th:onclick="|confirmAndShipOrder(${order.orderId})|">Confirm and Ship Order</button>
                 </div>
             </div>
         </div>
@@ -657,6 +656,26 @@
         .catch(error => {
             console.error('Error:', error);
             alert('Failed to confirm order');
+        });
+    }
+    
+    function confirmAndShipOrder(orderId) {
+        if (!confirm('Are you sure you want to confirm and ship this order?')) return;
+        fetch(`/seller/orders/confirm-and-ship/${orderId}`, {
+            method: 'POST'
+        })
+        .then(response => response.text())
+        .then(result => {
+            if (result.startsWith('success')) {
+                alert('Order confirmed and shipped successfully!');
+                window.location.reload(); // Refresh to show updated order status
+            } else {
+                alert('Error: ' + result);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to confirm and ship order');
         });
     }
 

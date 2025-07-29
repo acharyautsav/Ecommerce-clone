@@ -123,4 +123,18 @@ public class OrderService {
             orderRepository.save(order);
         }
     }
+    
+    @Transactional
+    public void confirmAndShipOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order != null) {
+            // Update order status directly to SHIPPED (skipping CONFIRMED)
+            order.setOrderStatus("SHIPPED");
+            order.setUpdatedAt(java.time.LocalDateTime.now());
+            orderRepository.save(order);
+            System.out.println("Order " + orderId + " confirmed and shipped successfully");
+        } else {
+            throw new RuntimeException("Order not found with ID: " + orderId);
+        }
+    }
 } 
