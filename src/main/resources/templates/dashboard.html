@@ -380,6 +380,75 @@
                 grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             }
         }
+
+        /* Custom dropdown styles */
+        .custom-dropdown {
+            position: relative;
+            min-width: 180px;
+            user-select: none;
+        }
+        .custom-dropdown-selected {
+            background: #fff7f2;
+            border: 1.5px solid #ff6b35;
+            border-radius: 18px;
+            padding: 10px 18px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(255,107,53,0.07);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            min-width: 100px;
+            max-width: 150px;
+        }
+        .custom-dropdown-selected:after {
+            content: '';
+            display: inline-block;
+            margin-left: 12px;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 7px solid #ff6b35;
+            transition: transform 0.3s;
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%) rotate(0deg);
+            flex-shrink: 0;
+        }
+        .custom-dropdown.open .custom-dropdown-selected:after {
+            transform: translateY(-50%) rotate(-180deg);
+        }
+        .custom-dropdown-list {
+            position: absolute;
+            top: 110%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(255,107,53,0.13);
+            z-index: 10;
+            padding: 8px 0;
+            margin-top: 4px;
+            animation: dropdownFadeIn 0.25s;
+        }
+        @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .custom-dropdown-option {
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            color: #333;
+        }
+        .custom-dropdown-option:hover, .custom-dropdown-option.selected {
+            background: #fff3e6;
+            color: #ff6b35;
+        }
     </style>
 </head>
 <body>
@@ -416,20 +485,26 @@
         <p class="hero-subtitle">Discover amazing products from trusted sellers</p>
     </section>
 
-    <!-- Categories -->
-    <section class="categories">
-        <div class="category-card" onclick="filterProducts('all')">
-            <div class="category-icon">🌐</div>
-            <h3>Show All</h3>
-        </div>
-        <div th:each="cat : ${categories}" class="category-card" data-category-name="[[${cat.categoryName}]]" onclick="filterProducts(this.getAttribute('data-category-name'))">
-            <div class="category-icon">🏷️</div>
-            <h3 th:text="${cat.categoryName}">Category</h3>
-        </div>
-    </section>
-
     <!-- Products Section -->
     <section class="products-section">
+        <!-- Categories moved here, just above Featured Products -->
+        <div style="display: flex; justify-content: flex-start; margin-bottom: 20px; align-items: center; gap: 10px;">
+            <div class="category-label-box" style="background: white; border: 1.5px solid #ff6b35; border-radius: 18px; padding: 10px 18px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 8px rgba(255,107,53,0.07);">
+                Category:
+            </div>
+            <div class="category-container" id="customCategoryDropdownContainer">
+                <div id="customCategoryDropdown" class="custom-dropdown">
+                    <div class="custom-dropdown-selected" id="customDropdownSelected">
+                        <span id="selectedCategoryText">Show All</span>
+                    </div>
+                    <div class="custom-dropdown-list" id="customDropdownList" style="display: none;">
+                        <div class="custom-dropdown-option" data-value="all">Show All</div>
+                        <div th:each="cat : ${categories}" class="custom-dropdown-option" th:attr="data-value=${cat.categoryName}" th:text="${cat.categoryName}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <h2 class="section-title">Featured Products</h2>
         <div class="products-grid" id="productsGrid">
             <div th:each="entry : ${products}">
@@ -723,6 +798,43 @@
         if (window.location.search.includes('error=1')) {
             alert('Login failed! Invalid username/email or password.');
         }
+    });
+
+    // Custom dropdown logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdown = document.getElementById('customCategoryDropdown');
+        const selected = document.getElementById('customDropdownSelected');
+        const list = document.getElementById('customDropdownList');
+        const options = list.getElementsByClassName('custom-dropdown-option');
+        let currentValue = 'all';
+
+        // Open/close dropdown
+        selected.onclick = function(e) {
+            dropdown.classList.toggle('open');
+            list.style.display = dropdown.classList.contains('open') ? 'block' : 'none';
+        };
+
+        // Option click
+        Array.from(options).forEach(function(option) {
+            option.onclick = function(e) {
+                // Remove selected from all
+                Array.from(options).forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                document.getElementById('selectedCategoryText').textContent = option.textContent;
+                currentValue = option.getAttribute('data-value');
+                dropdown.classList.remove('open');
+                list.style.display = 'none';
+                filterProducts(currentValue);
+            };
+        });
+
+        // Close dropdown on outside click
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+                list.style.display = 'none';
+            }
+        });
     });
 
     // Seller Registration Form Submission
