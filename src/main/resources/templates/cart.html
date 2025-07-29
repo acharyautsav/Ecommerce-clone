@@ -113,7 +113,7 @@ function changeQuantity(itemId, action) {
             <button id="open-address-modal" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 18px; font-weight: bold; cursor: pointer; margin-right: 16px;">Set Delivery Address</button>
             <form action="/stripe/checkout-session" method="GET" style="display:inline;">
                 <input type="hidden" name="amount" th:value="${cartTotal}" />
-                <button type="submit" style="background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 18px; font-weight: bold; cursor: pointer;">Checkout with Stripe (Redirect)</button>
+                <button type="submit" style="background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 18px; font-weight: bold; cursor: pointer;">Checkout</button>
             </form>
         </div>
     </div>
