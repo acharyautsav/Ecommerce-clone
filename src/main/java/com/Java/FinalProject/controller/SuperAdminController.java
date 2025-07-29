@@ -114,7 +114,12 @@ public class SuperAdminController {
         if (session.getAttribute("superadminId") == null) {
             throw new RuntimeException("Unauthorized");
         }
-        return sellerService.getAllSellers();
+        List<Seller> sellers = sellerService.getAllSellers();
+        System.out.println("Found " + sellers.size() + " sellers in database");
+        for (Seller seller : sellers) {
+            System.out.println("Seller ID: " + seller.getSellerId() + ", Name: " + seller.getSellerName() + ", Email: " + seller.getSellerEmail());
+        }
+        return sellers;
     }
 
     @GetMapping("/api/sellers/{id}")
@@ -123,7 +128,23 @@ public class SuperAdminController {
         if (session.getAttribute("superadminId") == null) {
             throw new RuntimeException("Unauthorized");
         }
-        return sellerService.getSellerById(id).orElseThrow(() -> new RuntimeException("Seller not found"));
+        System.out.println("Fetching seller with ID: " + id);
+        Seller seller = sellerService.getSellerById(id).orElseThrow(() -> new RuntimeException("Seller not found"));
+        System.out.println("Found seller: " + seller.getSellerName() + ", Email: " + seller.getSellerEmail());
+        
+        // Decrypt password for editing if it's encrypted, otherwise show as-is
+        if (seller.getSellerPassword() != null) {
+            if (sellerService.isPasswordEncrypted(seller.getSellerPassword())) {
+                String decryptedPassword = sellerService.decryptPassword(seller.getSellerPassword());
+                seller.setSellerPassword(decryptedPassword);
+                System.out.println("Password was encrypted, decrypted for editing");
+            } else {
+                System.out.println("Password was plain text, showing as-is");
+            }
+            // If not encrypted, keep as-is (plain text)
+        }
+        
+        return seller;
     }
 
     @PostMapping("/api/sellers")
@@ -142,7 +163,7 @@ public class SuperAdminController {
             throw new RuntimeException("Unauthorized");
         }
         seller.setSellerId(id);
-        return sellerService.saveSeller(seller);
+        return sellerService.updateSeller(seller);
     }
 
     @DeleteMapping("/api/sellers/{id}")
@@ -170,7 +191,15 @@ public class SuperAdminController {
         if (session.getAttribute("superadminId") == null) {
             throw new RuntimeException("Unauthorized");
         }
-        return customerService.getCustomerById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
+        Customer customer = customerService.getCustomerById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
+        
+        // Decrypt password for editing
+        if (customer.getCustomerPassword() != null) {
+            String decryptedPassword = customerService.decryptPassword(customer.getCustomerPassword());
+            customer.setCustomerPassword(decryptedPassword);
+        }
+        
+        return customer;
     }
 
     @PostMapping("/api/customers")
@@ -189,7 +218,7 @@ public class SuperAdminController {
             throw new RuntimeException("Unauthorized");
         }
         customer.setCustomerId(id);
-        return customerService.saveCustomer(customer);
+        return customerService.updateCustomer(customer);
     }
 
     @DeleteMapping("/api/customers/{id}")

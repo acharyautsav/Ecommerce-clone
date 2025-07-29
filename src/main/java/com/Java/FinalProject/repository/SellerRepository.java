@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface SellerRepository extends JpaRepository<Seller, Long> {
     Optional<Seller> findBySellerEmailAndSellerPassword(String sellerEmail, String sellerPassword);
+    Optional<Seller> findBySellerEmail(String sellerEmail);
 }

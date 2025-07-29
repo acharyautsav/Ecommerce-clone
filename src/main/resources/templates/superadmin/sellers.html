@@ -50,7 +50,8 @@
           </div>
           <div class="form-group">
             <label for="editSellerPassword">Password</label>
-            <input type="text" id="editSellerPassword" name="sellerPassword" required>
+            <input type="text" id="editSellerPassword" name="sellerPassword" required placeholder="Enter new password or keep current">
+            <small style="color: #666; font-size: 12px;">Current password is shown decrypted. Leave unchanged or enter new password.</small>
           </div>
           <div style="margin-top:1rem; text-align:right;">
             <button type="button" onclick="closeEditSellerModal()">Cancel</button>
@@ -61,14 +62,26 @@
     </div>
     <script>
 function editSeller(sellerId) {
+    console.log('Editing seller with ID:', sellerId);
     fetch('/superadmin/api/sellers/' + sellerId)
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(seller => {
+            console.log('Seller data received:', seller);
             document.getElementById('editSellerId').value = seller.sellerId;
             document.getElementById('editSellerName').value = seller.sellerName;
             document.getElementById('editSellerEmail').value = seller.sellerEmail;
             document.getElementById('editSellerPassword').value = seller.sellerPassword;
             document.getElementById('editSellerModal').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching seller:', error);
+            alert('Error loading seller data: ' + error.message);
         });
 }
 function closeEditSellerModal() {

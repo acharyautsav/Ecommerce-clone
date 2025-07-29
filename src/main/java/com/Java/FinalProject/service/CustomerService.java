@@ -79,7 +79,49 @@ public class CustomerService {
         return customerRepository.findById(id);
     }
     public Customer saveCustomer(Customer customer) {
+        // If this is a new customer or password is not encrypted, encrypt it
+        if (customer.getCustomerId() == null || !isPasswordEncrypted(customer.getCustomerPassword())) {
+            customer.setCustomerPassword(encryptPassword(customer.getCustomerPassword()));
+        }
         return customerRepository.save(customer);
+    }
+    
+    // Helper method to check if password is already encrypted
+    private boolean isPasswordEncrypted(String password) {
+        if (password == null) return false;
+        try {
+            // Try to decode as Base64 - if it works, it's likely encrypted
+            Base64.getDecoder().decode(password);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+    
+    // Method to update customer with proper password handling
+    public Customer updateCustomer(Customer customer) {
+        Customer existingCustomer = customerRepository.findById(customer.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        
+        // Update other fields
+        existingCustomer.setCustomerName(customer.getCustomerName());
+        existingCustomer.setCustomerEmail(customer.getCustomerEmail());
+        existingCustomer.setCustomerUsername(customer.getCustomerUsername());
+        existingCustomer.setDeliveryAddress(customer.getDeliveryAddress());
+        existingCustomer.setDeliveryLatitude(customer.getDeliveryLatitude());
+        existingCustomer.setDeliveryLongitude(customer.getDeliveryLongitude());
+        
+        // Handle password update
+        if (customer.getCustomerPassword() != null && !customer.getCustomerPassword().isEmpty()) {
+            // If password is provided and it's not already encrypted, encrypt it
+            if (!isPasswordEncrypted(customer.getCustomerPassword())) {
+                existingCustomer.setCustomerPassword(encryptPassword(customer.getCustomerPassword()));
+            } else {
+                existingCustomer.setCustomerPassword(customer.getCustomerPassword());
+            }
+        }
+        
+        return customerRepository.save(existingCustomer);
     }
     @Transactional
     public void deleteCustomer(Long id) {
