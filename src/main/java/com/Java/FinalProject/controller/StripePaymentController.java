@@ -53,7 +53,7 @@ public class StripePaymentController {
                     .setCancelUrl("http://localhost:8000/stripe/fail")
                     .addLineItem(SessionCreateParams.LineItem.builder()
                             .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
-                                    .setCurrency("usd")
+                                    .setCurrency("inr")
                                     .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                             .setName("Order Payment")
                                             .build())
@@ -88,7 +88,7 @@ public class StripePaymentController {
             
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                     .setAmount(amountInCents)
-                    .setCurrency("usd")
+                    .setCurrency("inr")
                     .setAutomaticPaymentMethods(PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
                             .setEnabled(true)
                             .build())

@@ -70,7 +70,7 @@
 <body>
     <div class="container">
         <h1>Complete Your Payment</h1>
-        <div class="amount">Total: $<span th:text="${amount}">0.00</span></div>
+        <div class="amount">Total: ₹<span th:text="${amount}">0.00</span></div>
         
         <!-- Ad blocker notice -->
         <div id="ad-blocker-notice" class="ad-blocker-notice" style="display: none;">
@@ -84,7 +84,7 @@
             
             <button id="submit-button" type="submit">
                 <span id="spinner" style="display: none;">Processing...</span>
-                <span id="button-text">Pay $<span th:text="${amount}">0</span></span>
+                <span id="button-text">Pay ₹<span th:text="${amount}">0</span></span>
             </button>
         </form>
     </div>

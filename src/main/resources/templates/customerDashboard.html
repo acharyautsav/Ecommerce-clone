@@ -138,7 +138,7 @@
                     <div class="product-image">📦</div>
                     <div class="product-info">
                         <h3 class="product-title" th:text="${entry.product.productName}">Product Name</h3>
-                        <p class="product-price" th:text="'$' + ${entry.product.price}">$0.00</p>
+                        <p class="product-price" th:text="'₹' + ${entry.product.price}">₹0.00</p>
                         <div style="display: flex; gap: 8px; margin-bottom: 5px;">
                             <button type="button" style="background: #28a745; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" th:onclick="|addToCart(event, ${entry.product.productId})|">Add to Cart</button>
                             <button type="button" style="background: #ff6b35; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" th:onclick="|buyNow(event, ${entry.product.productId})|">Buy</button>
@@ -210,7 +210,7 @@
                 <div class="product-image">📦</div>
                 <div class="product-info">
                     <h3 class="product-title">${entry.product.productName}</h3>
-                    <p class="product-price">$${entry.product.price}</p>
+                    <p class="product-price">₹${entry.product.price}</p>
                     <div style="display: flex; gap: 8px; margin-bottom: 5px;">
                         <button type="button" style="background: #28a745; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" onclick="addToCart(event, ${entry.product.productId})">Add to Cart</button>
                         <button type="button" style="background: #ff6b35; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 14px;" onclick="buyNow(event, ${entry.product.productId})">Buy</button>

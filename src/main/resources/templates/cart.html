@@ -60,20 +60,20 @@
         <tbody>
             <tr th:each="item : ${cartItems}">
                 <td th:text="${item.product.productName}">Product Name</td>
-                <td th:text="'$' + ${item.itemsOrderedPrice}">$0.00</td>
+                <td th:text="'₹' + ${item.itemsOrderedPrice}">₹0.00</td>
                 <td>
                     <button type="button" style="background:#eee; border:none; border-radius:4px; width:28px; height:28px; font-size:18px; cursor:pointer; margin-right:4px;" th:onclick="|changeQuantity(${item.itemsOrderedId}, 'decrease')|">-</button>
                     <span th:text="${item.itemsOrderedQuantity}">1</span>
                     <button type="button" style="background:#eee; border:none; border-radius:4px; width:28px; height:28px; font-size:18px; cursor:pointer; margin-left:4px;" th:onclick="|changeQuantity(${item.itemsOrderedId}, 'increase')|">+</button>
                 </td>
-                <td th:text="'$' + (${item.itemsOrderedPrice} * ${item.itemsOrderedQuantity})">$0.00</td>
+                <td th:text="'₹' + (${item.itemsOrderedPrice} * ${item.itemsOrderedQuantity})">₹0.00</td>
                 <td><button class="remove-btn" type="button" th:onclick="|removeFromCart(${item.itemsOrderedId})|">Remove</button></td>
             </tr>
         </tbody>
         <tfoot>
             <tr class="total-row">
                 <td colspan="3">Total</td>
-                <td th:text="'$' + ${cartTotal}">$0.00</td>
+                <td th:text="'₹' + ${cartTotal}">₹0.00</td>
                 <td></td>
             </tr>
         </tfoot>

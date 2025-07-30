@@ -512,7 +512,7 @@
                     <div class="product-image">📦</div>
                     <div class="product-info">
                         <h3 class="product-title" th:text="${entry.product.productName}">Product Name</h3>
-                        <p class="product-price" th:text="'$' + ${entry.product.price}">$0.00</p>
+                        <p class="product-price" th:text="'₹' + ${entry.product.price}">₹0.00</p>
                         <p class="seller-info" th:text="'Category: ' + ${entry.product.category}">Category: </p>
                         <p class="seller-info" th:text="'Sold by: ' + ${entry.sellerName}">Sold by: </p>
                     </div>
@@ -674,7 +674,7 @@
                 <div class="product-image">📦</div>
                 <div class="product-info">
                     <h3 class="product-title">${entry.product.productName}</h3>
-                    <p class="product-price">$${entry.product.price}</p>
+                    <p class="product-price">₹${entry.product.price}</p>
                     <p class="seller-info">Category: ${entry.product.category}</p>
                     <p class="seller-info">Sold by: ${entry.sellerName}</p>
                 </div>
