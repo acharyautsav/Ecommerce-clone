@@ -12,12 +12,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/seller")
@@ -177,6 +184,7 @@ public class SellerRegisterController {
             @RequestParam String category,
             @RequestParam BigDecimal price,
             @RequestParam(required = false) String description,
+            @RequestParam(required = false) MultipartFile productImage,
             HttpSession session
     ) {
         Map<String, Object> response = new HashMap<>();
@@ -189,12 +197,20 @@ public class SellerRegisterController {
         }
 
         try {
+            String imagePath = null;
+            
+            // Handle image upload if provided
+            if (productImage != null && !productImage.isEmpty()) {
+                imagePath = saveProductImage(productImage, seller.getSellerId());
+            }
+
             Product product = productService.addProduct(
                     productName,
                     category,
                     price,
                     description,
-                    seller.getSellerId()
+                    seller.getSellerId(),
+                    imagePath
             );
 
             response.put("status", "success");
@@ -216,6 +232,7 @@ public class SellerRegisterController {
             @RequestParam String category,
             @RequestParam BigDecimal price,
             @RequestParam(required = false) String description,
+            @RequestParam(required = false) MultipartFile productImage,
             HttpSession session
     ) {
         Map<String, Object> response = new HashMap<>();
@@ -228,12 +245,20 @@ public class SellerRegisterController {
         }
 
         try {
+            String imagePath = null;
+            
+            // Handle image upload if provided
+            if (productImage != null && !productImage.isEmpty()) {
+                imagePath = saveProductImage(productImage, seller.getSellerId());
+            }
+
             Product product = productService.updateProduct(
                     productId,
                     productName,
                     category,
                     price,
-                    description
+                    description,
+                    imagePath
             );
 
             response.put("status", "success");
@@ -284,6 +309,30 @@ public class SellerRegisterController {
     }
 
     /* Additional Product Endpoints */
+
+    /**
+     * Save uploaded product image to filesystem
+     */
+    private String saveProductImage(MultipartFile file, Long sellerId) throws IOException {
+        // Create upload directory if it doesn't exist
+        String uploadDir = "src/main/resources/static/uploads/products/";
+        File directory = new File(uploadDir);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        // Generate unique filename
+        String originalFilename = file.getOriginalFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String filename = "product_" + sellerId + "_" + UUID.randomUUID().toString() + extension;
+        
+        // Save file
+        Path filePath = Paths.get(uploadDir + filename);
+        Files.write(filePath, file.getBytes());
+        
+        // Return relative path for database storage
+        return "/uploads/products/" + filename;
+    }
 
     @GetMapping("/products")
     @ResponseBody

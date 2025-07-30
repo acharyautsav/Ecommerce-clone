@@ -36,6 +36,13 @@ public class ProductService {
      * Add a new product
      */
     public Product addProduct(String productName, String category, BigDecimal price, String description, Long sellerId) {
+        return addProduct(productName, category, price, description, sellerId, null);
+    }
+
+    /**
+     * Add a new product with image
+     */
+    public Product addProduct(String productName, String category, BigDecimal price, String description, Long sellerId, String imagePath) {
         // Validation
         if (productName == null || productName.trim().isEmpty()) {
             throw new IllegalArgumentException("Product name is required");
@@ -59,7 +66,8 @@ public class ProductService {
                 category.trim(),
                 price,
                 description != null ? description.trim() : "",
-                sellerId
+                sellerId,
+                imagePath
         );
 
         return productRepository.save(product);
@@ -148,6 +156,13 @@ public class ProductService {
      * Update product
      */
     public Product updateProduct(Long productId, String productName, String category, BigDecimal price, String description) {
+        return updateProduct(productId, productName, category, price, description, null);
+    }
+
+    /**
+     * Update product with image
+     */
+    public Product updateProduct(Long productId, String productName, String category, BigDecimal price, String description, String imagePath) {
         Optional<Product> existingProduct = getProductById(productId);
 
         if (existingProduct.isEmpty()) {
@@ -171,6 +186,10 @@ public class ProductService {
 
         if (description != null) {
             product.setDescription(description.trim());
+        }
+
+        if (imagePath != null) {
+            product.setImagePath(imagePath);
         }
 
         return productRepository.save(product);

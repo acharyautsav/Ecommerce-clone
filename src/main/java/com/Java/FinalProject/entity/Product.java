@@ -40,6 +40,9 @@ public class Product {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
+    @Column(name = "image_path")
+    private String imagePath;
+
     // Constructors
     public Product() {
         this.createdAt = LocalDateTime.now();
@@ -53,6 +56,16 @@ public class Product {
         this.price = price;
         this.description = description;
         this.sellerId = sellerId;
+    }
+
+    public Product(String productName, String category, BigDecimal price, String description, Long sellerId, String imagePath) {
+        this();
+        this.productName = productName;
+        this.category = category;
+        this.price = price;
+        this.description = description;
+        this.sellerId = sellerId;
+        this.imagePath = imagePath;
     }
 
     // JPA Lifecycle methods
