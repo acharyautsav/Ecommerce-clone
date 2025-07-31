@@ -2,119 +2,651 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Customers</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 30px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .admin-avatar {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .sidebar-header h3 {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 20px;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            text-decoration: none;
+            color: white;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .data-table td {
+            padding: 18px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-edit {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit:hover {
+            background: #138496;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-help {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .btn-cancel {
+            padding: 12px 24px;
+            border: 2px solid #e1e5e9;
+            background: transparent;
+            color: #666;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .btn-save {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .data-table {
+                font-size: 12px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 12px 8px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Manage Customers</h2>
-    <a href="/superadmin/dashboard">Back to Dashboard</a>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Customers will be listed here -->
-            <tr th:each="customer : ${customers}">
-                <td th:text="${customer.customerId}"></td>
-                <td th:text="${customer.customerName}"></td>
-                <td th:text="${customer.customerEmail}"></td>
-                <td>Active</td>
-                <td>
-                    <button th:onclick="|editCustomer(${customer.customerId})|">Edit</button>
-                    <button th:onclick="|deleteCustomer(${customer.customerId})|">Delete</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <button onclick="location.href='/superadmin/customers/add'">Add Customer</button>
-    <!-- Edit Customer Modal -->
-    <div id="editCustomerModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-      <div class="modal-content" style="background:#fff; margin:5% auto; padding:2rem; border-radius:10px; max-width:400px; position:relative;">
-        <span class="close" onclick="closeEditCustomerModal()" style="position:absolute; top:10px; right:20px; font-size:2rem; cursor:pointer;">&times;</span>
-        <h2>Edit Customer</h2>
-        <form id="editCustomerForm">
-          <input type="hidden" id="editCustomerId" name="customerId">
-          <div class="form-group">
-            <label for="editCustomerName">Name</label>
-            <input type="text" id="editCustomerName" name="customerName" required>
-          </div>
-          <div class="form-group">
-            <label for="editCustomerEmail">Email</label>
-            <input type="email" id="editCustomerEmail" name="customerEmail" required>
-          </div>
-          <div class="form-group">
-            <label for="editCustomerUsername">Username</label>
-            <input type="text" id="editCustomerUsername" name="customerUsername" required>
-          </div>
-          <div class="form-group">
-            <label for="editCustomerPassword">Password</label>
-            <input type="text" id="editCustomerPassword" name="customerPassword" required placeholder="Enter new password or keep current">
-            <small style="color: #666; font-size: 12px;">Current password is shown decrypted. Leave unchanged or enter new password.</small>
-          </div>
-          <div style="margin-top:1rem; text-align:right;">
-            <button type="button" onclick="closeEditCustomerModal()">Cancel</button>
-            <button type="submit">Save</button>
-          </div>
-        </form>
-      </div>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="admin-avatar">SA</div>
+                <h3>SuperAdmin</h3>
+                <p>Administrative Panel</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/superadmin/dashboard" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/superadmin/sellers" class="nav-link">
+                        <span class="nav-icon">👥</span>
+                        Manage Sellers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/superadmin/customers" class="nav-link active">
+                        <span class="nav-icon">👤</span>
+                        Manage Customers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/superadmin/categories" class="nav-link">
+                        <span class="nav-icon">📂</span>
+                        Manage Categories
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/superadmin/products" class="nav-link">
+                        <span class="nav-icon">📦</span>
+                        Manage Products
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/superadmin/logout" class="nav-link">
+                        <span class="nav-icon">🚪</span>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Manage Customers</h1>
+                <p class="page-subtitle">View and manage customer accounts on the platform</p>
+            </div>
+
+            <div class="action-bar">
+                <div>
+                    <h3 style="margin: 0; color: #333;">Customer Management</h3>
+                    <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Total customers: <span th:text="${#lists.size(customers)}">0</span></p>
+                </div>
+                <button onclick="openAddCustomerModal()" class="add-btn">➕ Add New Customer</button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="customer : ${customers}">
+                            <td th:text="${customer.customerId}"></td>
+                            <td th:text="${customer.customerName}"></td>
+                            <td th:text="${customer.customerEmail}"></td>
+                            <td th:text="${customer.customerUsername}"></td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-edit" th:onclick="|editCustomer(${customer.customerId})|">✏️ Edit</button>
+                                    <button class="btn-delete" th:onclick="|deleteCustomer(${customer.customerId})|">🗑️ Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+
+    <!-- Edit Customer Modal -->
+    <div id="editCustomerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Customer</h2>
+                <span class="close" onclick="closeEditCustomerModal()">&times;</span>
+            </div>
+            <form id="editCustomerForm">
+                <input type="hidden" id="editCustomerId" name="customerId">
+                <div class="form-group">
+                    <label for="editCustomerName">Name</label>
+                    <input type="text" id="editCustomerName" name="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCustomerEmail">Email</label>
+                    <input type="email" id="editCustomerEmail" name="customerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCustomerUsername">Username</label>
+                    <input type="text" id="editCustomerUsername" name="customerUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCustomerPassword">Password</label>
+                    <input type="text" id="editCustomerPassword" name="customerPassword" required placeholder="Enter new password or keep current">
+                    <div class="form-help">Current password is shown decrypted. Leave unchanged or enter new password.</div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeEditCustomerModal()">Cancel</button>
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="addCustomerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Customer</h2>
+                <span class="close" onclick="closeAddCustomerModal()">&times;</span>
+            </div>
+            <form id="addCustomerForm">
+                <div class="form-group">
+                    <label for="addCustomerName">Customer Name</label>
+                    <input type="text" id="addCustomerName" name="customerName" required placeholder="Enter customer name">
+                </div>
+                <div class="form-group">
+                    <label for="addCustomerEmail">Email</label>
+                    <input type="email" id="addCustomerEmail" name="customerEmail" required placeholder="Enter email address">
+                </div>
+                <div class="form-group">
+                    <label for="addCustomerUsername">Username</label>
+                    <input type="text" id="addCustomerUsername" name="customerUsername" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="addCustomerPassword">Password</label>
+                    <input type="password" id="addCustomerPassword" name="customerPassword" required placeholder="Enter password">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeAddCustomerModal()">Cancel</button>
+                    <button type="submit" class="btn-save">Add Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-function editCustomer(customerId) {
-    fetch('/superadmin/api/customers/' + customerId)
-        .then(response => response.json())
-        .then(customer => {
-            document.getElementById('editCustomerId').value = customer.customerId;
-            document.getElementById('editCustomerName').value = customer.customerName;
-            document.getElementById('editCustomerEmail').value = customer.customerEmail;
-            document.getElementById('editCustomerUsername').value = customer.customerUsername;
-            document.getElementById('editCustomerPassword').value = customer.customerPassword;
-            document.getElementById('editCustomerModal').style.display = 'block';
-        });
-}
-function closeEditCustomerModal() {
-    document.getElementById('editCustomerModal').style.display = 'none';
-}
-document.getElementById('editCustomerForm').onsubmit = function(e) {
-    e.preventDefault();
-    const id = document.getElementById('editCustomerId').value;
-    const data = {
-        customerId: id,
-        customerName: document.getElementById('editCustomerName').value,
-        customerEmail: document.getElementById('editCustomerEmail').value,
-        customerUsername: document.getElementById('editCustomerUsername').value,
-        customerPassword: document.getElementById('editCustomerPassword').value
-    };
-    fetch('/superadmin/api/customers/' + id, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    }).then(response => {
-        if(response.ok) {
-            closeEditCustomerModal();
-            location.reload();
-        } else {
-            alert('Failed to update customer.');
+        function editCustomer(customerId) {
+            fetch('/superadmin/api/customers/' + customerId)
+                .then(response => response.json())
+                .then(customer => {
+                    document.getElementById('editCustomerId').value = customer.customerId;
+                    document.getElementById('editCustomerName').value = customer.customerName;
+                    document.getElementById('editCustomerEmail').value = customer.customerEmail;
+                    document.getElementById('editCustomerUsername').value = customer.customerUsername;
+                    document.getElementById('editCustomerPassword').value = customer.customerPassword;
+                    document.getElementById('editCustomerModal').style.display = 'block';
+                });
         }
-    });
-};
-function deleteCustomer(customerId) {
-    if(confirm('Are you sure you want to delete this customer?')) {
-        fetch('/superadmin/api/customers/' + customerId, { method: 'DELETE' })
-            .then(response => {
+
+        function closeEditCustomerModal() {
+            document.getElementById('editCustomerModal').style.display = 'none';
+        }
+
+        document.getElementById('editCustomerForm').onsubmit = function(e) {
+            e.preventDefault();
+            const id = document.getElementById('editCustomerId').value;
+            const data = {
+                customerId: id,
+                customerName: document.getElementById('editCustomerName').value,
+                customerEmail: document.getElementById('editCustomerEmail').value,
+                customerUsername: document.getElementById('editCustomerUsername').value,
+                customerPassword: document.getElementById('editCustomerPassword').value
+            };
+            fetch('/superadmin/api/customers/' + id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(response => {
                 if(response.ok) {
+                    closeEditCustomerModal();
                     location.reload();
                 } else {
-                    alert('Failed to delete customer.');
+                    alert('Failed to update customer.');
                 }
             });
-    }
-}
-</script>
+        };
+
+        function deleteCustomer(customerId) {
+            if(confirm('Are you sure you want to delete this customer?')) {
+                fetch('/superadmin/api/customers/' + customerId, { method: 'DELETE' })
+                    .then(response => {
+                        if(response.ok) {
+                            location.reload();
+                        } else {
+                            alert('Failed to delete customer.');
+                        }
+                    });
+            }
+        }
+
+        // Add Customer Functions
+        function openAddCustomerModal() {
+            document.getElementById('addCustomerModal').style.display = 'block';
+        }
+
+        function closeAddCustomerModal() {
+            document.getElementById('addCustomerModal').style.display = 'none';
+            document.getElementById('addCustomerForm').reset();
+        }
+
+        document.getElementById('addCustomerForm').onsubmit = function(e) {
+            e.preventDefault();
+            const data = {
+                customerName: document.getElementById('addCustomerName').value,
+                customerEmail: document.getElementById('addCustomerEmail').value,
+                customerUsername: document.getElementById('addCustomerUsername').value,
+                customerPassword: document.getElementById('addCustomerPassword').value
+            };
+            fetch('/superadmin/api/customers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(response => {
+                if(response.ok) {
+                    closeAddCustomerModal();
+                    location.reload();
+                } else {
+                    alert('Failed to add customer.');
+                }
+            });
+        };
+    </script>
 </body>
 </html> 
