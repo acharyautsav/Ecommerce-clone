@@ -62,6 +62,8 @@ public class OrderService {
                 Order order = new Order();
                 order.setCustomer(customer);
                 order.setSeller(seller);
+                order.setProduct(product);
+                order.setQuantity(item.getItemsOrderedQuantity());
                 order.setTotalAmount(item.getItemsOrderedPrice() * item.getItemsOrderedQuantity());
                 order.setPaymentStatus("PAID");
                 order.setOrderStatus("PENDING");

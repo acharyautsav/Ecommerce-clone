@@ -381,25 +381,29 @@
         <h2 class="section-title">Pending Orders</h2>
     </div>
 
-    <!-- Pending Orders Grid -->
-    <div class="products-grid" th:if="${pendingOrders != null and !pendingOrders.empty}">
-        <div class="product-card" th:each="order : ${pendingOrders}">
-            <div class="product-image" style="background: linear-gradient(135deg, #ffc107, #ff9800);">📦</div>
-            <div class="product-info">
-                <h3 th:text="'Order #' + ${order.orderId}">Order #123</h3>
-                <span class="product-category" th:text="${order.customer.customerName}">Customer Name</span>
-                <div class="product-price">
-                    $<span th:text="${order.totalAmount}">99.99</span>
-                    <span class="order-status" style="background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px;" th:text="${order.orderStatus}">PENDING</span>
-                </div>
-                <p class="product-description" th:text="'Payment: ' + ${order.paymentStatus} + ' via ' + ${order.paymentMethod}">Payment info</p>
-                <p class="product-description" th:text="'Date: ' + ${#temporals.format(order.createdAt, 'MMM dd, yyyy HH:mm')}">Date</p>
-                <div style="margin-top: 10px;">
-                    <button class="btn btn-success btn-sm" th:onclick="|confirmAndShipOrder(${order.orderId})|">Confirm and Ship Order</button>
-                </div>
-            </div>
-        </div>
-    </div>
+         <!-- Pending Orders Grid -->
+     <div class="products-grid" th:if="${pendingOrders != null and !pendingOrders.empty}">
+         <div class="product-card" th:each="order : ${pendingOrders}">
+             <div class="product-image">
+                 <img th:if="${order.product != null and order.product.productImage != null and order.product.productImage != ''}" th:src="@{'/' + ${order.product.productImage}}" alt="Product Image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                 <span th:unless="${order.product != null and order.product.productImage != null and order.product.productImage != ''}" style="font-size: 48px; display: flex; align-items: center; justify-content: center; height: 100%; background: linear-gradient(135deg, #ffc107, #ff9800); border-radius: 8px;">📦</span>
+             </div>
+             <div class="product-info">
+                 <h3 th:text="'Order #' + ${order.orderId}">Order #123</h3>
+                 <span class="product-category" th:text="${order.customer.customerName}">Customer Name</span>
+                 <div class="product-price">
+                     ₹<span th:text="${order.totalAmount}">99.99</span>
+                     <span class="order-status" style="background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px;" th:text="${order.orderStatus}">PENDING</span>
+                 </div>
+                 <p class="product-description" th:if="${order.product != null}" th:text="${order.product.productName + ' (Qty: ' + order.quantity + ')'}">Product info</p>
+                 <p class="product-description" th:text="'Payment: ' + ${order.paymentStatus} + ' via ' + ${order.paymentMethod}">Payment info</p>
+                 <p class="product-description" th:text="'Date: ' + ${#temporals.format(order.createdAt, 'MMM dd, yyyy HH:mm')}">Date</p>
+                 <div style="margin-top: 10px;">
+                     <button class="btn btn-success btn-sm" th:onclick="|confirmAndShipOrder(${order.orderId})|">Confirm and Ship Order</button>
+                 </div>
+             </div>
+         </div>
+     </div>
 
     <!-- No Pending Orders Message -->
     <div class="no-products" th:if="${pendingOrders == null or pendingOrders.empty}">
