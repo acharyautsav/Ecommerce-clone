@@ -96,6 +96,19 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
+                        .logout-nav-link {
+                    background: #ff6b6b !important;
+                    color: white !important;
+                    border: 2px solid #ff6b6b;
+                    margin-top: 20px;
+                }
+
+                .logout-nav-link:hover {
+                    background: #ff5252 !important;
+                    border-color: #ff5252;
+                    transform: translateX(5px);
+                }
+
         .nav-icon {
             margin-right: 12px;
             font-size: 18px;
@@ -235,58 +248,7 @@
             color: white;
         }
 
-        /* Quick Actions Section */
-        .quick-actions {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            margin-top: 30px;
-        }
 
-        .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 12px 20px;
-            border: 2px solid #667eea;
-            background: transparent;
-            color: #667eea;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .action-btn:hover {
-            background: #667eea;
-            color: white;
-            transform: translateY(-2px);
-            text-decoration: none;
-        }
-
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: 2px solid #dc3545;
-        }
-
-        .logout-btn:hover {
-            background: #c82333;
-            border-color: #c82333;
-        }
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -308,9 +270,7 @@
                 grid-template-columns: 1fr;
             }
 
-            .action-buttons {
-                flex-direction: column;
-            }
+
         }
     </style>
 </head>
@@ -356,7 +316,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/superadmin/logout" class="nav-link">
+                    <a href="/superadmin/logout" class="nav-link logout-nav-link">
                         <span class="nav-icon">🚪</span>
                         Logout
                     </a>
@@ -454,16 +414,7 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="quick-actions">
-                <h3 class="section-title">Quick Actions</h3>
-                <div class="action-buttons">
-                    <a href="/superadmin/sellers" class="action-btn">Add New Seller</a>
-                    <a href="/superadmin/categories" class="action-btn">Create Category</a>
-                    <a href="/superadmin/products" class="action-btn">Add Product</a>
-                    <a href="/superadmin/logout" class="action-btn logout-btn">Logout</a>
-                </div>
-            </div>
+
         </div>
     </div>
 </body>

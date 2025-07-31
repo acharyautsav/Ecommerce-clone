@@ -96,6 +96,19 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
+                        .logout-nav-link {
+                    background: #ff6b6b !important;
+                    color: white !important;
+                    border: 2px solid #ff6b6b;
+                    margin-top: 20px;
+                }
+
+                .logout-nav-link:hover {
+                    background: #ff5252 !important;
+                    border-color: #ff5252;
+                    transform: translateX(5px);
+                }
+
         .nav-icon {
             margin-right: 12px;
             font-size: 18px;
@@ -445,7 +458,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/superadmin/logout" class="nav-link">
+                    <a href="/superadmin/logout" class="nav-link logout-nav-link">
                         <span class="nav-icon">🚪</span>
                         Logout
                     </a>
