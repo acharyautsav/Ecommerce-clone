@@ -6,18 +6,22 @@ import com.Java.FinalProject.entity.Seller;
 import com.Java.FinalProject.service.ProductService;
 import com.Java.FinalProject.service.SellerService;
 import com.Java.FinalProject.service.OrderService;
+import com.Java.FinalProject.service.ImageService;
+import com.Java.FinalProject.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/seller")
@@ -28,6 +32,8 @@ public class SellerRegisterController {
     private final SellerService sellerService;
     private final ProductService productService;
     private final OrderService orderService;
+    private final ImageService imageService;
+    private final ProductRepository productRepository;
 
     /* Existing Auth Endpoints */
 
@@ -177,6 +183,7 @@ public class SellerRegisterController {
             @RequestParam String category,
             @RequestParam BigDecimal price,
             @RequestParam(required = false) String description,
+            @RequestParam(value = "image", required = false) MultipartFile image,
             HttpSession session
     ) {
         Map<String, Object> response = new HashMap<>();
@@ -197,9 +204,22 @@ public class SellerRegisterController {
                     seller.getSellerId()
             );
 
+            // Handle image upload if provided
+            if (image != null && !image.isEmpty()) {
+                try {
+                    String imagePath = imageService.uploadProductImage(image);
+                    product.setProductImage(imagePath);
+                    // Save the product with image path
+                    productRepository.save(product);
+                } catch (Exception e) {
+                    // Log error but don't fail the product creation
+                    System.err.println("Failed to upload image: " + e.getMessage());
+                }
+            }
+
             response.put("status", "success");
             response.put("message", "Product added successfully");
-            response.put("redirectUrl", "/seller/dashboard"); // Add this line
+            response.put("redirectUrl", "/seller/dashboard");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("status", "error");
@@ -216,6 +236,7 @@ public class SellerRegisterController {
             @RequestParam String category,
             @RequestParam BigDecimal price,
             @RequestParam(required = false) String description,
+            @RequestParam(value = "image", required = false) MultipartFile image,
             HttpSession session
     ) {
         Map<String, Object> response = new HashMap<>();
@@ -235,6 +256,23 @@ public class SellerRegisterController {
                     price,
                     description
             );
+
+            // Handle image upload if provided
+            if (image != null && !image.isEmpty()) {
+                try {
+                    // Delete old image if exists
+                    if (product.getProductImage() != null) {
+                        imageService.deleteImage(product.getProductImage());
+                    }
+                    
+                    String imagePath = imageService.uploadProductImage(image);
+                    product.setProductImage(imagePath);
+                    productRepository.save(product);
+                } catch (Exception e) {
+                    // Log error but don't fail the product update
+                    System.err.println("Failed to upload image: " + e.getMessage());
+                }
+            }
 
             response.put("status", "success");
             response.put("message", "Product updated successfully");
@@ -264,6 +302,16 @@ public class SellerRegisterController {
         }
 
         try {
+            // Get product to delete its image
+            Optional<Product> productOpt = productService.getProductById(productId);
+            if (productOpt.isPresent()) {
+                Product product = productOpt.get();
+                // Delete image file if exists
+                if (product.getProductImage() != null) {
+                    imageService.deleteImage(product.getProductImage());
+                }
+            }
+            
             boolean deleted = productService.deleteProduct(productId, seller.getSellerId());
             response.put("status", deleted ? "success" : "error");
             response.put("message", deleted ? "Product deleted successfully" : "Failed to delete product");

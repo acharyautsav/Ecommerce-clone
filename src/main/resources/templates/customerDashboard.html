@@ -135,7 +135,10 @@
         <div class="products-grid" id="productsGrid">
             <div th:each="entry : ${products}">
                 <div class="product-card" th:attr="data-category=${entry.product.category}">
-                    <div class="product-image">📦</div>
+                    <div class="product-image">
+                        <img th:if="${entry.product.productImage}" th:src="@{'/' + ${entry.product.productImage}}" alt="Product Image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        <span th:unless="${entry.product.productImage}" style="font-size: 48px;">📦</span>
+                    </div>
                     <div class="product-info">
                         <h3 class="product-title" th:text="${entry.product.productName}">Product Name</h3>
                         <p class="product-price" th:text="'₹' + ${entry.product.price}">₹0.00</p>
@@ -207,7 +210,12 @@
             card.className = 'product-card';
             card.setAttribute('data-category', entry.product.category);
             card.innerHTML = `
-                <div class="product-image">📦</div>
+                <div class="product-image">
+                    ${entry.product.productImage ? 
+                        `<img src="/${entry.product.productImage}" alt="Product Image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">` : 
+                        '<span style="font-size: 48px;">📦</span>'
+                    }
+                </div>
                 <div class="product-info">
                     <h3 class="product-title">${entry.product.productName}</h3>
                     <p class="product-price">₹${entry.product.price}</p>

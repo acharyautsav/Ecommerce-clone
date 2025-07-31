@@ -12,10 +12,12 @@ import com.Java.FinalProject.service.SuperAdminService;
 import com.Java.FinalProject.service.SellerService;
 import com.Java.FinalProject.service.CustomerService;
 import com.Java.FinalProject.service.ProductService;
+import com.Java.FinalProject.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
@@ -39,6 +41,7 @@ public class SuperAdminController {
 
     @Autowired
     private ProductService productService;
+
 
     @GetMapping("/login")
     public String loginPage() {
@@ -260,21 +263,33 @@ public class SuperAdminController {
 
     @PostMapping("/api/categories")
     @ResponseBody
-    public ProductCategory apiAddCategory(@RequestBody ProductCategory category, HttpSession session) {
+    public ProductCategory apiAddCategory(@RequestParam("categoryName") String categoryName, 
+                                        HttpSession session) {
         if (session.getAttribute("superadminId") == null) {
             throw new RuntimeException("Unauthorized");
         }
+        
+        ProductCategory category = new ProductCategory();
+        category.setCategoryName(categoryName);
+        
         return productCategoryRepository.save(category);
     }
 
     @PutMapping("/api/categories/{id}")
     @ResponseBody
-    public ProductCategory apiUpdateCategory(@PathVariable Integer id, @RequestBody ProductCategory category, HttpSession session) {
+    public ProductCategory apiUpdateCategory(@PathVariable Integer id, 
+                                           @RequestParam("categoryName") String categoryName,
+                                           HttpSession session) {
         if (session.getAttribute("superadminId") == null) {
             throw new RuntimeException("Unauthorized");
         }
-        category.setCategoryId(id);
-        return productCategoryRepository.save(category);
+        
+        ProductCategory existingCategory = productCategoryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Category not found"));
+        
+        existingCategory.setCategoryName(categoryName);
+        
+        return productCategoryRepository.save(existingCategory);
     }
 
     @DeleteMapping("/api/categories/{id}")
@@ -283,6 +298,7 @@ public class SuperAdminController {
         if (session.getAttribute("superadminId") == null) {
             throw new RuntimeException("Unauthorized");
         }
+        
         productCategoryRepository.deleteById(id);
     }
 

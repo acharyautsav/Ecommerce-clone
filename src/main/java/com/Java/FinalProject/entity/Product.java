@@ -40,6 +40,8 @@ public class Product {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
+    private String productImage; // Store relative path like "images/products/laptop_1234567890.jpg"
+
     // Constructors
     public Product() {
         this.createdAt = LocalDateTime.now();
