@@ -61,7 +61,25 @@ public class SuperAdminController {
         if (session.getAttribute("superadminId") == null) {
             return "redirect:/superadmin/login";
         }
+        
+        // Get real data counts
+        long totalSellers = sellerService.getAllSellers().size();
+        long totalCustomers = customerService.getAllCustomers().size();
+        long totalCategories = productCategoryRepository.count();
+        long totalProducts = productRepository.count();
+        
+        // For now, we'll assume all sellers are active and none are pending
+        // In a real application, you'd have status fields to determine this
+        long activeSellers = totalSellers;
+        long pendingSellers = 0; // Assuming no pending sellers for now
+        
         model.addAttribute("superadminUsername", session.getAttribute("superadminUsername"));
+        model.addAttribute("activeSellers", activeSellers);
+        model.addAttribute("pendingSellers", pendingSellers);
+        model.addAttribute("totalCustomers", totalCustomers);
+        model.addAttribute("totalCategories", totalCategories);
+        model.addAttribute("totalProducts", totalProducts);
+        
         return "superadmin/dashboard";
     }
 
