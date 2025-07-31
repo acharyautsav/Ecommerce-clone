@@ -131,16 +131,24 @@
             backdrop-filter: blur(5px);
         }
 
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 2rem;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease-out;
-        }
+                 .modal-content {
+             background-color: white;
+             margin: 2% auto;
+             padding: 2rem;
+             border-radius: 15px;
+             width: 90%;
+             max-width: 500px;
+             max-height: 98vh;
+             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+             animation: modalSlideIn 0.3s ease-out;
+             overflow: hidden;
+         }
+         
+         .modal-content form {
+             max-height: calc(98vh - 8rem);
+             overflow-y: auto;
+             padding-right: 1rem;
+         }
 
         @keyframes modalSlideIn {
             from {
@@ -452,89 +460,95 @@
     </div>
 </div>
 
-<!-- Add Product Modal -->
-<div id="addProductModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeAddProductModal()">&times;</span>
-        <h2>Add New Product</h2>
-        <form id="addProductForm" th:action="@{/seller/addProduct}" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="sellerId" th:value="${seller.sellerId}">
+   <!-- Add Product Modal -->
+  <div id="addProductModal" class="modal">
+      <div class="modal-content">
+          <span class="close" onclick="closeAddProductModal()">&times;</span>
+          <h2>Add New Product</h2>
+          <form id="addProductForm" th:action="@{/seller/addProduct}" method="post" enctype="multipart/form-data">
+              <input type="hidden" name="sellerId" th:value="${seller.sellerId}">
 
-            <div class="form-group">
-                <label for="productName">Product Name *</label>
-                <input type="text" id="productName" name="productName" required>
-            </div>
+              <div class="form-group">
+                  <label for="productName">Product Name *</label>
+                  <input type="text" id="productName" name="productName" required>
+              </div>
 
-            <div class="form-group">
-                <label for="category">Category *</label>
-                <select id="category" name="category" required>
-                    <option value="">Select Category</option>
-                    <option th:each="cat : ${categories}" th:value="${cat.categoryName}" th:text="${cat.categoryName}"></option>
-                </select>
-            </div>
+              <div class="form-group">
+                  <label for="category">Category *</label>
+                  <select id="category" name="category" required>
+                      <option value="">Select Category</option>
+                      <option th:each="cat : ${categories}" th:value="${cat.categoryName}" th:text="${cat.categoryName}"></option>
+                  </select>
+              </div>
 
-                        <div class="form-group">
-                <label for="price">Price (₹) *</label>
-                <input type="number" id="price" name="price" step="0.01" min="0" required>
-            </div>
+              <div class="form-group">
+                  <label for="price">Price (₹) *</label>
+                  <input type="number" id="price" name="price" step="0.01" min="0" required>
+              </div>
 
-            <div class="form-group">
-                <label for="productImage">Product Image</label>
-                <input type="file" id="productImage" name="image" accept="image/*">
-                <small style="color: #666; font-size: 12px;">Supported formats: JPG, PNG, GIF. Max size: 5MB</small>
-            </div>
+                             <div class="form-group">
+                   <label for="productImage">Product Image</label>
+                   <input type="file" id="productImage" name="image" accept="image/*" onchange="previewImage(this, 'addImagePreview')">
+                   <small style="color: #666; font-size: 12px;">Supported formats: JPG, PNG, GIF. Max size: 5MB</small>
+                   <div id="addImagePreview" style="margin-top: 10px; display: none;">
+                       <img id="addPreviewImg" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #e0e6ed;" alt="Image Preview">
+                   </div>
+               </div>
 
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" name="description" placeholder="Describe your product..."></textarea>
-            </div>
+              <div class="form-group">
+                  <label for="description">Description</label>
+                  <textarea id="description" name="description" placeholder="Describe your product..."></textarea>
+              </div>
 
-            <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" onclick="closeAddProductModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Add Product</button>
-            </div>
-        </form>
-    </div>
-</div>
+              <div class="modal-buttons">
+                  <button type="button" class="btn btn-secondary" onclick="closeAddProductModal()">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Add Product</button>
+              </div>
+          </form>
+      </div>
+  </div>
 
-<!-- Edit Product Modal -->
-<div id="editProductModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeEditProductModal()">&times;</span>
-        <h2>Edit Product</h2>
-        <form id="editProductForm" enctype="multipart/form-data">
-            <input type="hidden" id="editProductId" name="productId">
-            <div class="form-group">
-                <label for="editProductName">Product Name *</label>
-                <input type="text" id="editProductName" name="productName" required>
-            </div>
-            <div class="form-group">
-                <label for="editCategory">Category *</label>
-                <select id="editCategory" name="category" required>
-                    <option value="">Select Category</option>
-                    <option th:each="cat : ${categories}" th:value="${cat.categoryName}" th:text="${cat.categoryName}"></option>
-                </select>
-            </div>
-                        <div class="form-group">
-                <label for="editPrice">Price (₹) *</label>
-                <input type="number" id="editPrice" name="price" step="0.01" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="editProductImage">Product Image (Optional)</label>
-                <input type="file" id="editProductImage" name="image" accept="image/*">
-                <small style="color: #666; font-size: 12px;">Leave empty to keep current image</small>
-            </div>
-            <div class="form-group">
-                <label for="editDescription">Description</label>
-                <textarea id="editDescription" name="description" placeholder="Describe your product..."></textarea>
-            </div>
-            <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" onclick="closeEditProductModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Update Product</button>
-            </div>
-        </form>
-    </div>
-</div>
+   <!-- Edit Product Modal -->
+  <div id="editProductModal" class="modal">
+      <div class="modal-content">
+          <span class="close" onclick="closeEditProductModal()">&times;</span>
+          <h2>Edit Product</h2>
+          <form id="editProductForm" enctype="multipart/form-data">
+              <input type="hidden" id="editProductId" name="productId">
+              <div class="form-group">
+                  <label for="editProductName">Product Name *</label>
+                  <input type="text" id="editProductName" name="productName" required>
+              </div>
+              <div class="form-group">
+                  <label for="editCategory">Category *</label>
+                  <select id="editCategory" name="category" required>
+                      <option value="">Select Category</option>
+                      <option th:each="cat : ${categories}" th:value="${cat.categoryName}" th:text="${cat.categoryName}"></option>
+                  </select>
+              </div>
+              <div class="form-group">
+                  <label for="editPrice">Price (₹) *</label>
+                  <input type="number" id="editPrice" name="price" step="0.01" min="0" required>
+              </div>
+                             <div class="form-group">
+                   <label for="editProductImage">Product Image</label>
+                   <input type="file" id="editProductImage" name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview')">
+                   <small style="color: #666; font-size: 12px;">Leave empty to keep current image</small>
+                   <div id="editImagePreview" style="margin-top: 10px; display: none;">
+                       <img id="editPreviewImg" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #e0e6ed;" alt="Image Preview">
+                   </div>
+               </div>
+              <div class="form-group">
+                  <label for="editDescription">Description</label>
+                  <textarea id="editDescription" name="description" placeholder="Describe your product..."></textarea>
+              </div>
+              <div class="modal-buttons">
+                  <button type="button" class="btn btn-secondary" onclick="closeEditProductModal()">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Update Product</button>
+              </div>
+          </form>
+      </div>
+  </div>
 
 <script>
     // Modal Functions
@@ -542,10 +556,12 @@
         document.getElementById('addProductModal').style.display = 'block';
     }
 
-    function closeAddProductModal() {
-        document.getElementById('addProductModal').style.display = 'none';
-        document.getElementById('addProductForm').reset();
-    }
+         function closeAddProductModal() {
+         document.getElementById('addProductModal').style.display = 'none';
+         document.getElementById('addProductForm').reset();
+         // Clear image preview
+         document.getElementById('addImagePreview').style.display = 'none';
+     }
 
     function openEditProductModal(productId, productName, category, price, description) {
         document.getElementById('editProductId').value = productId;
@@ -556,20 +572,40 @@
         document.getElementById('editProductModal').style.display = 'block';
     }
 
-    function closeEditProductModal() {
-        document.getElementById('editProductModal').style.display = 'none';
-        document.getElementById('editProductForm').reset();
-    }
+         function closeEditProductModal() {
+         document.getElementById('editProductModal').style.display = 'none';
+         document.getElementById('editProductForm').reset();
+         // Clear image preview
+         document.getElementById('editImagePreview').style.display = 'none';
+     }
 
-    function openEditProductModalFromButton(btn) {
-        openEditProductModal(
-            btn.getAttribute('data-product-id'),
-            btn.getAttribute('data-product-name'),
-            btn.getAttribute('data-product-category'),
-            btn.getAttribute('data-product-price'),
-            btn.getAttribute('data-product-description')
-        );
-    }
+         function openEditProductModalFromButton(btn) {
+         openEditProductModal(
+             btn.getAttribute('data-product-id'),
+             btn.getAttribute('data-product-name'),
+             btn.getAttribute('data-product-category'),
+             btn.getAttribute('data-product-price'),
+             btn.getAttribute('data-product-description')
+         );
+     }
+     
+     function previewImage(input, previewId) {
+         const preview = document.getElementById(previewId);
+         const img = document.getElementById(previewId === 'addImagePreview' ? 'addPreviewImg' : 'editPreviewImg');
+         
+         if (input.files && input.files[0]) {
+             const reader = new FileReader();
+             
+             reader.onload = function(e) {
+                 img.src = e.target.result;
+                 preview.style.display = 'block';
+             }
+             
+             reader.readAsDataURL(input.files[0]);
+         } else {
+             preview.style.display = 'none';
+         }
+     }
 
     // Close modal when clicking outside
     window.onclick = function(event) {
