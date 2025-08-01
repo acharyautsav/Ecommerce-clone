@@ -311,11 +311,6 @@ public class OrderService {
                      <p>This is an official receipt from ShopMart</p>
                      <p>Generated on %s</p>
                  </div>
-                 
-                 <div style="text-align: center; margin-top: 30px;">
-                     <button style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px; font-family: 'Courier New', monospace;">Close</button>
-                     <button style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-family: 'Courier New', monospace;">Save as PDF</button>
-                 </div>
             </body>
             </html>
             """.formatted(
