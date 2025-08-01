@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -138,5 +141,189 @@ public class OrderService {
         } else {
             throw new RuntimeException("Order not found with ID: " + orderId);
         }
+    }
+    
+    public Order getOrderById(Long orderId) {
+        return orderRepository.findById(orderId).orElse(null);
+    }
+    
+    public void generateReceiptPDF(Order order, HttpServletResponse response) throws IOException {
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"receipt_" + order.getOrderId() + ".pdf\"");
+        
+        // Create HTML content for the receipt
+        String htmlContent = generateReceiptHTML(order);
+        
+        // Convert HTML to PDF using iText
+        try {
+            com.itextpdf.html2pdf.HtmlConverter.convertToPdf(htmlContent, response.getOutputStream());
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    private String generateReceiptHTML(Order order) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy 'at' hh:mm a");
+        
+        return """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Order Receipt</title>
+                <style>
+                    body { 
+                        font-family: 'Courier New', monospace; 
+                        margin: 40px; 
+                        color: #333;
+                        line-height: 1.6;
+                    }
+                                         .header { 
+                         text-align: center; 
+                         margin-bottom: 25px; 
+                     }
+                     .receipt-title { 
+                         font-size: 22px; 
+                         font-weight: bold; 
+                         color: #333; 
+                         margin-bottom: 8px;
+                     }
+                     .brand-name {
+                         font-size: 18px;
+                         font-weight: bold;
+                         color: #333;
+                         margin-bottom: 3px;
+                     }
+                     .tagline {
+                         font-size: 12px;
+                         color: #666;
+                         margin-bottom: 15px;
+                     }
+                     .divider {
+                         border: none;
+                         border-top: 1px solid #ddd;
+                         margin-bottom: 20px;
+                     }
+                                         .section {
+                         margin-bottom: 20px;
+                     }
+                     .section-title {
+                         font-weight: bold;
+                         color: #333;
+                         margin-bottom: 12px;
+                         font-size: 16px;
+                     }
+                     .info-row {
+                         margin-bottom: 6px;
+                     }
+                    .label {
+                        font-weight: bold;
+                        color: #333;
+                    }
+                    .value {
+                        color: #666;
+                        margin-left: 10px;
+                    }
+                    .status {
+                        color: #28a745;
+                        font-weight: bold;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 40px;
+                        color: #666;
+                        font-size: 12px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="receipt-title">Order Receipt</div>
+                    <div class="brand-name">ShopMart</div>
+                    <div class="tagline">Your Trusted Shopping Partner</div>
+                </div>
+                
+                <hr class="divider">
+                
+                <div class="section">
+                    <div class="info-row">
+                        <span class="label">Order ID:</span>
+                        <span class="value">#%s</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Date:</span>
+                        <span class="value">%s</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Status:</span>
+                        <span class="value status">%s</span>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">Customer Information</div>
+                    <div class="info-row">
+                        <span class="label">Name:</span>
+                        <span class="value">%s</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Email:</span>
+                        <span class="value">%s</span>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">Product Details</div>
+                    <div class="info-row">
+                        <span class="label">Product:</span>
+                        <span class="value">%s</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Quantity:</span>
+                        <span class="value">%s</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Unit Price:</span>
+                        <span class="value">₹%.2f</span>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">Payment Information</div>
+                    <div class="info-row">
+                        <span class="label">Payment Method:</span>
+                        <span class="value">%s</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Payment Status:</span>
+                        <span class="value status">%s</span>
+                    </div>
+                </div>
+                
+                                 <div class="footer">
+                     <p>This is an official receipt from ShopMart</p>
+                     <p>Generated on %s</p>
+                 </div>
+                 
+                 <div style="text-align: center; margin-top: 30px;">
+                     <button style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px; font-family: 'Courier New', monospace;">Close</button>
+                     <button style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-family: 'Courier New', monospace;">Save as PDF</button>
+                 </div>
+            </body>
+            </html>
+            """.formatted(
+                order.getOrderId(),
+                order.getCreatedAt().format(formatter),
+                order.getOrderStatus(),
+                order.getCustomer().getCustomerName(),
+                order.getCustomer().getCustomerEmail(),
+                order.getProduct().getProductName(),
+                order.getQuantity(),
+                order.getProduct().getPrice(),
+                order.getPaymentMethod(),
+                order.getPaymentStatus(),
+                java.time.LocalDateTime.now().format(formatter)
+            );
     }
 } 

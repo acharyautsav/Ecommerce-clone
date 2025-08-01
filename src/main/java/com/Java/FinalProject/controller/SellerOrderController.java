@@ -111,4 +111,39 @@ public class SellerOrderController {
             return "error: " + e.getMessage();
         }
     }
+    
+    @GetMapping("/seller/orders/receipt/{orderId}")
+    @ResponseBody
+    public Order getOrderReceipt(@PathVariable Long orderId, HttpSession session) {
+        Seller seller = (Seller) session.getAttribute("seller");
+        
+        if (seller == null) {
+            return null;
+        }
+        
+        try {
+            return orderService.getOrderById(orderId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    @GetMapping("/seller/orders/receipt-pdf/{orderId}")
+    public void generateReceiptPDF(@PathVariable Long orderId, HttpSession session, 
+                                   jakarta.servlet.http.HttpServletResponse response) {
+        Seller seller = (Seller) session.getAttribute("seller");
+        
+        if (seller == null) {
+            return;
+        }
+        
+        try {
+            Order order = orderService.getOrderById(orderId);
+            if (order != null) {
+                orderService.generateReceiptPDF(order, response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 } 
