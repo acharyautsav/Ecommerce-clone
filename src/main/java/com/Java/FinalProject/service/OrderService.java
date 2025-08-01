@@ -246,60 +246,66 @@ public class OrderService {
                 
                 <hr class="divider">
                 
-                <div class="section">
-                    <div class="info-row">
-                        <span class="label">Order ID:</span>
-                        <span class="value">#%s</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Date:</span>
-                        <span class="value">%s</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Status:</span>
-                        <span class="value status">%s</span>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">Customer Information</div>
-                    <div class="info-row">
-                        <span class="label">Name:</span>
-                        <span class="value">%s</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Email:</span>
-                        <span class="value">%s</span>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">Product Details</div>
-                    <div class="info-row">
-                        <span class="label">Product:</span>
-                        <span class="value">%s</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Quantity:</span>
-                        <span class="value">%s</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Unit Price:</span>
-                        <span class="value">₹%.2f</span>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">Payment Information</div>
-                    <div class="info-row">
-                        <span class="label">Payment Method:</span>
-                        <span class="value">%s</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Payment Status:</span>
-                        <span class="value status">%s</span>
-                    </div>
-                </div>
+                                 <div class="section">
+                     <div class="info-row">
+                         <span class="label">Order ID:</span>
+                         <span class="value">#%s</span>
+                     </div>
+                     <div class="info-row">
+                         <span class="label">Date:</span>
+                         <span class="value">%s</span>
+                     </div>
+                     <div class="info-row">
+                         <span class="label">Status:</span>
+                         <span class="value status">%s</span>
+                     </div>
+                 </div>
+                 
+                 <hr class="divider">
+                 
+                 <div class="section">
+                     <div class="section-title">Customer Information</div>
+                     <div class="info-row">
+                         <span class="label">Name:</span>
+                         <span class="value">%s</span>
+                     </div>
+                     <div class="info-row">
+                         <span class="label">Email:</span>
+                         <span class="value">%s</span>
+                     </div>
+                 </div>
+                 
+                 <hr class="divider">
+                 
+                 <div class="section">
+                     <div class="section-title">Product Details</div>
+                     <div class="info-row">
+                         <span class="label">Product:</span>
+                         <span class="value">%s</span>
+                     </div>
+                     <div class="info-row">
+                         <span class="label">Quantity:</span>
+                         <span class="value">%s</span>
+                     </div>
+                     <div class="info-row">
+                         <span class="label">Unit Price:</span>
+                         <span class="value">₹%.2f</span>
+                     </div>
+                 </div>
+                 
+                 <hr class="divider">
+                 
+                 <div class="section">
+                     <div class="section-title">Payment Information</div>
+                     <div class="info-row">
+                         <span class="label">Payment Method:</span>
+                         <span class="value">%s</span>
+                     </div>
+                     <div class="info-row">
+                         <span class="label">Payment Status:</span>
+                         <span class="value status">%s</span>
+                     </div>
+                 </div>
                 
                                  <div class="footer">
                      <p>This is an official receipt from ShopMart</p>

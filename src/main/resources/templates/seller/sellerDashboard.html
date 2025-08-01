@@ -769,81 +769,93 @@
         });
         
         modal.innerHTML = `
-            <div class="modal-content" style="max-width: 450px; font-family: 'Courier New', monospace; padding: 25px;">
-                <span class="close" onclick="closeReceiptModal()">&times;</span>
-                
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <h2 style="color: #333; margin-bottom: 8px; font-size: 22px;">Order Receipt</h2>
-                    <div style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 3px;">ShopMart</div>
-                    <div style="font-size: 12px; color: #666;">Your Trusted Shopping Partner</div>
+            <div class="modal-content" style="max-width: 450px; max-height: 80vh; font-family: 'Courier New', monospace; padding: 0; display: flex; flex-direction: column;">
+                <div style="padding: 25px 25px 0 25px;">
+                    <span class="close" onclick="closeReceiptModal()">&times;</span>
+                    
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <h2 style="color: #333; margin-bottom: 8px; font-size: 22px;">Order Receipt</h2>
+                        <div style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 3px;">ShopMart</div>
+                        <div style="font-size: 12px; color: #666;">Your Trusted Shopping Partner</div>
+                    </div>
+                    
+                    <hr style="border: none; border-top: 1px solid #ddd; margin-bottom: 20px;">
                 </div>
                 
-                <hr style="border: none; border-top: 1px solid #ddd; margin-bottom: 20px;">
-                
-                <div style="margin-bottom: 20px;">
-                    <div style="margin-bottom: 6px;">
-                        <span style="font-weight: bold; color: #333;">Order ID:</span>
-                        <span style="color: #666; margin-left: 8px;">#${order.orderId}</span>
+                <div style="flex: 1; overflow-y: auto; padding: 0 25px; max-height: calc(80vh - 200px);">
+                    <div style="margin-bottom: 20px;">
+                        <div style="margin-bottom: 6px;">
+                            <span style="font-weight: bold; color: #333;">Order ID:</span>
+                            <span style="color: #666; margin-left: 8px;">#${order.orderId}</span>
+                        </div>
+                        <div style="margin-bottom: 6px;">
+                            <span style="font-weight: bold; color: #333;">Date:</span>
+                            <span style="color: #666; margin-left: 8px;">${orderDate}</span>
+                        </div>
+                        <div style="margin-bottom: 6px;">
+                            <span style="font-weight: bold; color: #333;">Status:</span>
+                            <span style="color: #28a745; margin-left: 8px; font-weight: bold;">${order.orderStatus}</span>
+                        </div>
                     </div>
-                    <div style="margin-bottom: 6px;">
-                        <span style="font-weight: bold; color: #333;">Date:</span>
-                        <span style="color: #666; margin-left: 8px;">${orderDate}</span>
+                    
+                    <hr style="border: none; border-top: 1px solid #ddd; margin-bottom: 20px;">
+                    
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-weight: bold; color: #333; margin-bottom: 12px;">Customer Information</div>
+                        <div style="margin-bottom: 6px;">
+                            <span style="font-weight: bold; color: #333;">Name:</span>
+                            <span style="color: #666; margin-left: 8px;">${order.customer.customerName}</span>
+                        </div>
+                        <div style="margin-bottom: 6px;">
+                            <span style="font-weight: bold; color: #333;">Email:</span>
+                            <span style="color: #666; margin-left: 8px;">${order.customer.customerEmail}</span>
+                        </div>
                     </div>
-                    <div style="margin-bottom: 6px;">
-                        <span style="font-weight: bold; color: #333;">Status:</span>
-                        <span style="color: #28a745; margin-left: 8px; font-weight: bold;">${order.orderStatus}</span>
+                    
+                    <hr style="border: none; border-top: 1px solid #ddd; margin-bottom: 20px;">
+                    
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-weight: bold; color: #333; margin-bottom: 12px;">Product Details</div>
+                        <div style="margin-bottom: 6px;">
+                            <span style="font-weight: bold; color: #333;">Product:</span>
+                            <span style="color: #666; margin-left: 8px;">${order.product.productName}</span>
+                        </div>
+                        <div style="margin-bottom: 6px;">
+                            <span style="font-weight: bold; color: #333;">Quantity:</span>
+                            <span style="color: #666; margin-left: 8px;">${order.quantity}</span>
+                        </div>
+                        <div style="margin-bottom: 6px;">
+                            <span style="font-weight: bold; color: #333;">Unit Price:</span>
+                            <span style="color: #666; margin-left: 8px;">₹${order.product.price}</span>
+                        </div>
+                    </div>
+                    
+                    <hr style="border: none; border-top: 1px solid #ddd; margin-bottom: 20px;">
+                    
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-weight: bold; color: #333; margin-bottom: 12px;">Payment Information</div>
+                        <div style="margin-bottom: 6px;">
+                            <span style="font-weight: bold; color: #333;">Payment Method:</span>
+                            <span style="color: #666; margin-left: 8px;">${order.paymentMethod}</span>
+                        </div>
+                        <div style="margin-bottom: 6px;">
+                            <span style="font-weight: bold; color: #333;">Payment Status:</span>
+                            <span style="color: #28a745; margin-left: 8px; font-weight: bold;">${order.paymentStatus}</span>
+                        </div>
                     </div>
                 </div>
                 
-                <div style="margin-bottom: 20px;">
-                    <div style="font-weight: bold; color: #333; margin-bottom: 12px;">Customer Information</div>
-                    <div style="margin-bottom: 6px;">
-                        <span style="font-weight: bold; color: #333;">Name:</span>
-                        <span style="color: #666; margin-left: 8px;">${order.customer.customerName}</span>
+                <div style="padding: 0 25px 25px 25px; border-top: 1px solid #eee; background: #f9f9f9; margin-top: auto;">
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="closeReceiptModal()" 
+                                style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-weight: 500; margin-right: 10px;">
+                            Close
+                        </button>
+                        <button onclick="downloadReceiptPDF(${order.orderId})" 
+                                style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-weight: 500;">
+                            Save as PDF
+                        </button>
                     </div>
-                    <div style="margin-bottom: 6px;">
-                        <span style="font-weight: bold; color: #333;">Email:</span>
-                        <span style="color: #666; margin-left: 8px;">${order.customer.customerEmail}</span>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <div style="font-weight: bold; color: #333; margin-bottom: 12px;">Product Details</div>
-                    <div style="margin-bottom: 6px;">
-                        <span style="font-weight: bold; color: #333;">Product:</span>
-                        <span style="color: #666; margin-left: 8px;">${order.product.productName}</span>
-                    </div>
-                    <div style="margin-bottom: 6px;">
-                        <span style="font-weight: bold; color: #333;">Quantity:</span>
-                        <span style="color: #666; margin-left: 8px;">${order.quantity}</span>
-                    </div>
-                    <div style="margin-bottom: 6px;">
-                        <span style="font-weight: bold; color: #333;">Unit Price:</span>
-                        <span style="color: #666; margin-left: 8px;">₹${order.product.price}</span>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <div style="font-weight: bold; color: #333; margin-bottom: 12px;">Payment Information</div>
-                    <div style="margin-bottom: 6px;">
-                        <span style="font-weight: bold; color: #333;">Payment Method:</span>
-                        <span style="color: #666; margin-left: 8px;">${order.paymentMethod}</span>
-                    </div>
-                    <div style="margin-bottom: 6px;">
-                        <span style="font-weight: bold; color: #333;">Payment Status:</span>
-                        <span style="color: #28a745; margin-left: 8px; font-weight: bold;">${order.paymentStatus}</span>
-                    </div>
-                </div>
-                
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <button onclick="closeReceiptModal()" 
-                            style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-weight: 500; margin-right: 10px;">
-                        Close
-                    </button>
-                    <button onclick="downloadReceiptPDF(${order.orderId})" 
-                            style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-weight: 500;">
-                        Save as PDF
-                    </button>
                 </div>
             </div>
         `;
