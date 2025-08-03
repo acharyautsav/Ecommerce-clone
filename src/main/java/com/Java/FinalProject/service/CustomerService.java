@@ -4,6 +4,7 @@ import com.Java.FinalProject.entity.Customer;
 import com.Java.FinalProject.repository.CustomerRepository;
 import com.Java.FinalProject.repository.CustomerOrderRepository;
 import com.Java.FinalProject.entity.CustomerOrder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,14 +13,13 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class CustomerService {
 
-    @Autowired
-    private CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
 
-    @Autowired
-    private CustomerOrderRepository customerOrderRepository;
+    private final CustomerOrderRepository customerOrderRepository;
 
     // Simple encryption using Base64 (for demonstration)
     public String encryptPassword(String password) {

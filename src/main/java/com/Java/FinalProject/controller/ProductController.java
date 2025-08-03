@@ -3,6 +3,7 @@ package com.Java.FinalProject.controller;
 
 import com.Java.FinalProject.entity.Product;
 import com.Java.FinalProject.service.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,12 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Controller
 @RequestMapping("/products")
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+
+    private final ProductService productService;
 
     /**
      * Show all products (public homepage)

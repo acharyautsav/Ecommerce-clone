@@ -2,6 +2,7 @@ package com.Java.FinalProject;
 
 import com.Java.FinalProject.entity.SuperAdmin;
 import com.Java.FinalProject.repository.SuperAdminRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,11 +10,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 import jakarta.annotation.PostConstruct;
 
+
 @SpringBootApplication
+@RequiredArgsConstructor
 public class FinalProjectApplication {
 
-    @Autowired
-    private SuperAdminRepository superAdminRepository;
+
+    private final SuperAdminRepository superAdminRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(FinalProjectApplication.class, args);

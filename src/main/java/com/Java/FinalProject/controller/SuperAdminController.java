@@ -13,6 +13,7 @@ import com.Java.FinalProject.service.SellerService;
 import com.Java.FinalProject.service.CustomerService;
 import com.Java.FinalProject.service.ProductService;
 import com.Java.FinalProject.service.ImageService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,23 +24,18 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Controller
 @RequestMapping("/superadmin")
 public class SuperAdminController {
-    @Autowired
-    private SuperAdminService superAdminService;
-    @Autowired
-    private SellerService sellerService;
-    @Autowired
-    private CustomerService customerService;
-    @Autowired
-    private ProductCategoryRepository productCategoryRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private ItemsOrderedRepository itemsOrderedRepository;
 
-    @Autowired
+    private final SuperAdminService superAdminService;
+    private final SellerService sellerService;
+    private final CustomerService customerService;
+    private final ProductCategoryRepository productCategoryRepository;
+    private final ProductRepository productRepository;
+    private final ItemsOrderedRepository itemsOrderedRepository;
+
     private ProductService productService;
 
 

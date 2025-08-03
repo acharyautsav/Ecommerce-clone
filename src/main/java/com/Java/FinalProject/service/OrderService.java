@@ -2,6 +2,7 @@ package com.Java.FinalProject.service;
 
 import com.Java.FinalProject.entity.*;
 import com.Java.FinalProject.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,25 +12,20 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class OrderService {
     
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
     
-    @Autowired
-    private CustomerOrderRepository customerOrderRepository;
+    private final CustomerOrderRepository customerOrderRepository;
     
-    @Autowired
-    private ItemsOrderedRepository itemsOrderedRepository;
+    private final ItemsOrderedRepository itemsOrderedRepository;
     
-    @Autowired
-    private CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
     
-    @Autowired
-    private SellerRepository sellerRepository;
+    private final SellerRepository sellerRepository;
     
-    @Autowired
     private CartService cartService;
     
     @Transactional

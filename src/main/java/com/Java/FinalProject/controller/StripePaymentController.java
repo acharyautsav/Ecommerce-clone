@@ -9,6 +9,7 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,20 +20,18 @@ import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Controller
 public class StripePaymentController {
 
-    @Autowired
-    private StripeConfig stripeConfig;
-    
-    @Autowired
-    private OrderService orderService;
-    
-    @Autowired
-    private CustomerRepository customerRepository;
 
-    @Autowired
-    private CartService cartService;
+    private final StripeConfig stripeConfig;
+    
+    private final OrderService orderService;
+    
+    private final CustomerRepository customerRepository;
+
+    private final CartService cartService;
 
     @GetMapping("/stripe/checkout")
     public String stripeCheckout(@RequestParam("amount") String amount, Model model) {

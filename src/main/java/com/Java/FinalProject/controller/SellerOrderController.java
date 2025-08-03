@@ -3,6 +3,7 @@ package com.Java.FinalProject.controller;
 import com.Java.FinalProject.entity.Order;
 import com.Java.FinalProject.entity.Seller;
 import com.Java.FinalProject.service.OrderService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,11 +12,12 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Controller
 public class SellerOrderController {
     
-    @Autowired
-    private OrderService orderService;
+
+    private final OrderService orderService;
     
     @GetMapping("/seller/orders")
     public String sellerOrders(HttpSession session, Model model) {

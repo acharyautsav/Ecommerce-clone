@@ -2,11 +2,13 @@ package com.Java.FinalProject.service;
 
 import com.Java.FinalProject.entity.Seller;
 import com.Java.FinalProject.repository.SellerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 public class SellerService {

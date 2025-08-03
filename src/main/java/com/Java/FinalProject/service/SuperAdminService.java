@@ -2,16 +2,18 @@ package com.Java.FinalProject.service;
 
 import com.Java.FinalProject.entity.SuperAdmin;
 import com.Java.FinalProject.repository.SuperAdminRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class SuperAdminService {
-    @Autowired
-    private SuperAdminRepository superAdminRepository;
+
+    private final SuperAdminRepository superAdminRepository;
 
     public Optional<SuperAdmin> authenticate(String username, String password) {
         Optional<SuperAdmin> adminOpt = superAdminRepository.findByUsername(username);

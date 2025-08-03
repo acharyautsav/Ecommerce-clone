@@ -8,6 +8,7 @@ import com.Java.FinalProject.repository.ProductCategoryRepository;
 import com.Java.FinalProject.repository.ItemsOrderedRepository;
 import com.Java.FinalProject.entity.ProductCategory;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,21 +17,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 @Transactional
 public class ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private SellerRepository sellerRepository;
+    private final SellerRepository sellerRepository;
 
-    @Autowired
-    private ProductCategoryRepository productCategoryRepository;
+    private final ProductCategoryRepository productCategoryRepository;
 
-    @Autowired
-    private ItemsOrderedRepository itemsOrderedRepository;
+    private final ItemsOrderedRepository itemsOrderedRepository;
 
     /**
      * Add a new product

@@ -8,6 +8,7 @@ import com.Java.FinalProject.repository.CustomerOrderRepository;
 import com.Java.FinalProject.repository.ItemsOrderedRepository;
 import com.Java.FinalProject.repository.ProductRepository;
 import com.Java.FinalProject.repository.CustomerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,16 +16,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ArrayList;
 
+@RequiredArgsConstructor
 @Service
 public class CartService {
-    @Autowired
-    private CustomerOrderRepository customerOrderRepository;
-    @Autowired
-    private ItemsOrderedRepository itemsOrderedRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private CustomerRepository customerRepository;
+
+    private final CustomerOrderRepository customerOrderRepository;
+    private final ItemsOrderedRepository itemsOrderedRepository;
+    private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
 
     // Find or create a cart for the customer
     public CustomerOrder getOrCreateCart(Customer customer) {
