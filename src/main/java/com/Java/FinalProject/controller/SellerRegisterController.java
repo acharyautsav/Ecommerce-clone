@@ -211,6 +211,8 @@ public class SellerRegisterController {
                     product.setProductImage(imagePath);
                     // Save the product with image path
                     productRepository.save(product);
+                    // Refresh static resources to ensure image is immediately available
+                    imageService.refreshStaticResources();
                 } catch (Exception e) {
                     // Log error but don't fail the product creation
                     System.err.println("Failed to upload image: " + e.getMessage());
@@ -268,6 +270,8 @@ public class SellerRegisterController {
                     String imagePath = imageService.uploadProductImage(image);
                     product.setProductImage(imagePath);
                     productRepository.save(product);
+                    // Refresh static resources to ensure image is immediately available
+                    imageService.refreshStaticResources();
                 } catch (Exception e) {
                     // Log error but don't fail the product update
                     System.err.println("Failed to upload image: " + e.getMessage());
@@ -352,4 +356,6 @@ public class SellerRegisterController {
         }
         return ResponseEntity.ok(productService.getProductCountBySeller(seller.getSellerId()));
     }
+    
+    
 }

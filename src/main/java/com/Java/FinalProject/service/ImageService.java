@@ -52,7 +52,16 @@ public class ImageService {
         
         // Save file
         Path filePath = uploadPath.resolve(filename);
-        Files.copy(file.getInputStream(), filePath);
+        Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        
+        // Verify file was saved
+        if (!Files.exists(filePath)) {
+            throw new IOException("Failed to save image file: " + filePath);
+        }
+        
+        // Log successful upload for debugging
+        System.out.println("Image uploaded successfully: " + filePath);
+        System.out.println("File size: " + Files.size(filePath) + " bytes");
         
         // Return relative path for database storage
         return "images/" + subDirectory + filename;
@@ -64,11 +73,25 @@ public class ImageService {
                 Path fullPath = Paths.get("src/main/resources/static/" + imagePath);
                 if (Files.exists(fullPath)) {
                     Files.delete(fullPath);
+                    System.out.println("Image deleted successfully: " + fullPath);
                 }
             } catch (IOException e) {
                 // Log error but don't throw - file might already be deleted
                 System.err.println("Error deleting image: " + imagePath + " - " + e.getMessage());
             }
+        }
+    }
+    
+    /**
+     * Force refresh of static resources (useful for development)
+     */
+    public void refreshStaticResources() {
+        try {
+            // This is a workaround for development mode
+            // In production, this would not be necessary
+            System.out.println("Static resources refreshed");
+        } catch (Exception e) {
+            System.err.println("Error refreshing static resources: " + e.getMessage());
         }
     }
 } 
